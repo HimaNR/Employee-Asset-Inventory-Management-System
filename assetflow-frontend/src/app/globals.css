@@ -1,10 +1,33 @@
 @import "tailwindcss";
 
+@theme {
+  --color-ink: #1b2430;
+  --color-ink-muted: #5b6573;
+  --color-paper: #f5f6f8;
+  --color-line: #e2e5ea;
+  --color-tag: #f2c230;
+  --color-tag-ink: #3a2e00;
+  --color-focus: #3b6fd8;
+}
+
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 body {
-  @apply bg-zinc-50 text-zinc-900 font-sans;
+  @apply bg-paper font-sans text-ink antialiased;
+}
+
+/* Visible keyboard focus everywhere (accessibility) */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
