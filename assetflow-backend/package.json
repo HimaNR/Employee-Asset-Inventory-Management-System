@@ -22,7 +22,10 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "prisma:seed": "prisma db seed",
+    "prisma:reset": "prisma migrate reset",
+    "db:snapshot": "docker exec assetflow-postgres pg_dump -U assetflow -d assetflow --schema-only --no-owner --no-privileges -f /tmp/assetflow_schema.sql && docker cp assetflow-postgres:/tmp/assetflow_schema.sql src/prisma/assetflow_schema.sql"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -61,6 +64,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.2"
   }
 }
