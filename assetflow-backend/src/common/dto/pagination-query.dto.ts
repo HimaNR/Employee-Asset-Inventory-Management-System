@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
 
@@ -6,6 +7,7 @@ export type SortOrder = (typeof SORT_ORDERS)[number];
 
 export class PaginationQueryDto {
   /** Page number, starting at 1 */
+  @ApiPropertyOptional({ default: 1, minimum: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -13,6 +15,7 @@ export class PaginationQueryDto {
   page: number = 1;
 
   /** Items per page (max 100) */
+  @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 100 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -21,6 +24,7 @@ export class PaginationQueryDto {
   limit: number = 20;
 
   /** Sort direction */
+  @ApiPropertyOptional({ enum: SORT_ORDERS, default: 'desc' })
   @IsOptional()
   @IsIn(SORT_ORDERS)
   sortOrder: SortOrder = 'desc';
