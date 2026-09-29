@@ -25,7 +25,13 @@ export class HealthService {
     };
 
     if (!isHealthy) {
-      throw new ServiceUnavailableException(result);
+      throw new ServiceUnavailableException({
+        type: 'service-unavailable',
+        title: 'Service unavailable',
+        detail: 'One or more dependencies are down.',
+        timestamp: result.timestamp,
+        checks: result.checks, // extension field, kept by the filter
+      });
     }
     return result;
   }
