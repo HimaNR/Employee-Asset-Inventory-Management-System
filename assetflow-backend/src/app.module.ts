@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AssetHistoryModule } from './asset-history/asset-history.module';
+import { AssetsModule } from './assets/assets.module';
 import { CategoriesModule } from './categories/categories.module';
 import configuration from './config/configuration';
 import { validate } from './config/environment.validation';
@@ -17,6 +19,8 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     HealthModule,
     CategoriesModule,
+    AssetHistoryModule,
+    AssetsModule,
   ],
 })
 export class AppModule {}

@@ -25,3 +25,10 @@ export function ToBoolean(): PropertyDecorator {
     return value;
   });
 }
+
+/** "  lap-0012 " -> "LAP-0012" (codes are stored in upper case) */
+export function TrimUpper(): PropertyDecorator {
+  return Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toUpperCase() : value,
+  );
+}
