@@ -16,6 +16,8 @@ interface SelectProps extends Omit<ComponentProps<'select'>, 'children'> {
   hideLabel?: boolean;
   /** "field" for forms, "filter" for pill-shaped filter bars */
   variant?: 'field' | 'filter';
+  /** Filter pills: the value that means "not filtering" (stays light). Default "" */
+  neutralValue?: string;
 }
 
 export default function Select({
@@ -26,6 +28,7 @@ export default function Select({
   error,
   hideLabel = false,
   variant = 'field',
+  neutralValue = '',
   id,
   required,
   className,
@@ -36,8 +39,8 @@ export default function Select({
   const selectId = id ?? autoId;
   const hintId = hint ? `${selectId}-hint` : undefined;
   const errorId = error ? `${selectId}-error` : undefined;
-  // A filter pill turns dark when something is selected, so active filters stand out
-  const isActiveFilter = variant === 'filter' && value !== undefined && value !== '';
+  // A filter pill turns dark only when it differs from its neutral value
+  const isActiveFilter = variant === 'filter' && value !== undefined && value !== neutralValue;
 
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
@@ -56,7 +59,7 @@ export default function Select({
           aria-invalid={error ? true : undefined}
           aria-describedby={[hintId, errorId].filter(Boolean).join(' ') || undefined}
           className={cn(
-            'w-full cursor-pointer appearance-none text-sm transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60',
+            'w-full cursor-pointer appearance-none truncate text-sm transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60',
             variant === 'field' &&
               'h-11 rounded-xl border bg-surface-2 pr-10 pl-4 text-ink hover:border-ink-muted/40 focus:bg-surface',
             variant === 'field' && (error ? 'border-red-500' : 'border-transparent'),

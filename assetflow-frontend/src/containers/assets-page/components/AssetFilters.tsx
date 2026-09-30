@@ -3,7 +3,7 @@ import Button from '@/components/Button';
 import Select, { type SelectOption } from '@/components/Select';
 import { ASSET_CONDITION_LABEL } from '@/libs/asset-display';
 import { ASSET_CONDITIONS } from '@/types/asset.types';
-import type { AssetFilters as Filters } from '../utils/asset-filters';
+import { DEFAULT_FILTERS, type AssetFilters as Filters } from '../utils/asset-filters';
 
 interface AssetFiltersProps {
   filters: Filters;
@@ -33,22 +33,8 @@ export function AssetFilters({
   onClear,
 }: AssetFiltersProps) {
   return (
-    <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-      <label className="relative block w-full xl:max-w-sm">
-        <span className="sr-only">Search assets</span>
-        <Search
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-ink-muted"
-        />
-        <input
-          type="search"
-          value={filters.search}
-          onChange={(event) => onChange({ search: event.target.value })}
-          placeholder="Search code, name, serial, brand, model"
-          className="h-10 w-full rounded-full border border-line bg-surface pr-4 pl-11 text-sm text-ink shadow-sm transition-all placeholder:text-ink-muted/70 hover:shadow-md focus:shadow-md"
-        />
-      </label>
-
+    <div className="space-y-3">
+      {/* Row 2: dropdown filters */}
       <div className="flex flex-wrap items-center gap-2">
         <Select
           variant="filter"
@@ -58,15 +44,17 @@ export function AssetFilters({
           options={categoryOptions}
           value={filters.categoryId}
           onChange={(event) => onChange({ categoryId: event.target.value })}
+          className="w-44"
         />
         <Select
           variant="filter"
           label="Assigned to"
           hideLabel
-          placeholder="Anyone"
+          placeholder="Assigned to anyone"
           options={employeeOptions}
           value={filters.employeeId}
           onChange={(event) => onChange({ employeeId: event.target.value })}
+          className="w-60"
         />
         <Select
           variant="filter"
@@ -78,6 +66,7 @@ export function AssetFilters({
           onChange={(event) =>
             onChange({ condition: event.target.value as Filters['condition'] })
           }
+          className="w-44"
         />
         <Select
           variant="filter"
@@ -86,17 +75,35 @@ export function AssetFilters({
           placeholder="Active + deactivated"
           options={ACTIVITY_OPTIONS}
           value={filters.activity}
+          neutralValue={DEFAULT_FILTERS.activity}
           onChange={(event) =>
             onChange({ activity: event.target.value as Filters['activity'] })
           }
+          className="w-52"
         />
         {canClear && (
           <Button variant="ghost" size="sm" onClick={onClear}>
             <X className="h-4 w-4" aria-hidden="true" />
-            Clear
+            Clear filters
           </Button>
         )}
       </div>
+
+      {/* Row 3: search */}
+      <label className="relative block w-full">
+        <span className="sr-only">Search assets</span>
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-ink-muted"
+        />
+        <input
+          type="search"
+          value={filters.search}
+          onChange={(event) => onChange({ search: event.target.value })}
+          placeholder="Search code, name, serial, brand or model"
+          className="h-11 w-full rounded-full border border-line bg-surface pr-4 pl-11 text-sm text-ink shadow-sm transition-all placeholder:text-ink-muted/70 hover:shadow-md focus:shadow-md"
+        />
+      </label>
     </div>
   );
 }
