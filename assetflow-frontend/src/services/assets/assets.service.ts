@@ -1,11 +1,13 @@
 import { apiClient } from '@/libs/api/api-client';
 import type { PaginatedResponse } from '@/types/api.types';
-import type {
-  Asset,
-  AssetHistoryEntry,
-  AssetQuery,
-  CreateAssetInput,
-  UpdateAssetInput,
+import {
+  ASSET_STATUSES,
+  type Asset,
+  type AssetHistoryEntry,
+  type AssetQuery,
+  type AssetStatus,
+  type CreateAssetInput,
+  type UpdateAssetInput,
 } from '@/types/asset.types';
 
 export const assetsService = {
@@ -22,6 +24,29 @@ export const assetsService = {
   deactivate: (id: string) => apiClient.post<Asset>(`/assets/${id}/deactivate`),
 
   reactivate: (id: string) => apiClient.post<Asset>(`/assets/${id}/reactivate`),
+
+  /**
+   * How many assets are in each status (reads meta.total with limit=1).
+   * Phase 6 will replace this with the dashboard summary endpoint.
+   */
+  async statusCounts(
+    filter: Pick<AssetQuery, 'isActive'>,
+    signal?: AbortSignal,
+  ): Promise<Record<AssetStatus, number>> {
+    const totals = await Promise.all(
+      ASSET_STATUSES.map((status) =>
+        apiClient
+          .get<PaginatedResponse<Asset>>('/assets', {
+            query: { ...filter, status, limit: 1 },
+            signal,
+          })
+          .then((response) => response.meta.total),
+      ),
+    );
+    return Object.fromEntries(
+      ASSET_STATUSES.map((status, i) => [status, totals[i]]),
+    ) as Record<AssetStatus, number>;
+  },
 
   history: (id: string, query: { page?: number; limit?: number }, signal?: AbortSignal) =>
     apiClient.get<PaginatedResponse<AssetHistoryEntry>>(`/assets/${id}/history`, {
