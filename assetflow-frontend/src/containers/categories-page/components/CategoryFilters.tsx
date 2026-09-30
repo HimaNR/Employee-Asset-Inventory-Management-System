@@ -22,7 +22,7 @@ export function CategoryFilters({
   onStatusChange,
 }: CategoryFiltersProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <label className="relative block w-full sm:max-w-xs">
         <span className="sr-only">Search categories</span>
         <Search
@@ -34,18 +34,18 @@ export function CategoryFilters({
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Search name or description"
-          className="h-11 w-full rounded-full border border-line bg-surface pr-4 pl-11 text-sm text-ink transition-all placeholder:text-ink-muted/70 hover:shadow-md focus:shadow-md"
+          className="h-10 w-full rounded-full border border-line bg-surface pr-4 pl-11 text-sm text-ink shadow-sm transition-all placeholder:text-ink-muted/70 hover:shadow-md focus:shadow-md"
         />
       </label>
 
       <Select
+        variant="filter"
         label="Status"
         hideLabel
         value={status}
         onChange={(event) => onStatusChange(event.target.value as StatusFilter)}
         placeholder="All statuses"
         options={STATUS_OPTIONS}
-        className="sm:w-44"
       />
     </div>
   );

@@ -45,11 +45,11 @@ export default function Table<T>({
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-line bg-white">
+    <div className="overflow-x-auto rounded-3xl border border-line/70 bg-surface/85 backdrop-blur-sm">
       <table className="w-full text-left text-sm">
         {caption && <caption className="sr-only">{caption}</caption>}
 
-        <thead className="border-b border-line bg-paper text-xs font-medium text-ink-muted">
+        <thead className="border-b border-line bg-surface-2/60 text-xs font-medium text-ink-muted">
           <tr>
             {columns.map((column) => {
               const sortKey = column.sortKey;
@@ -66,7 +66,7 @@ export default function Table<T>({
                   scope="col"
                   aria-sort={ariaSort}
                   className={cn(
-                    'px-4 py-2.5 whitespace-nowrap',
+                    'px-5 py-3.5 whitespace-nowrap',
                     column.align === 'right' && 'text-right',
                     column.className,
                   )}
@@ -75,7 +75,7 @@ export default function Table<T>({
                     <button
                       type="button"
                       onClick={() => handleSort(sortKey)}
-                      className="inline-flex items-center gap-1 rounded hover:text-ink"
+                      className="inline-flex items-center gap-1 rounded-full transition-colors hover:text-ink"
                     >
                       {column.header}
                       {isSorted ? (
@@ -97,31 +97,31 @@ export default function Table<T>({
           </tr>
         </thead>
 
-        <tbody className={cn('divide-y divide-line', isLoading && rows.length > 0 && 'opacity-60')}>
+        <tbody className={cn('divide-y divide-line/70 transition-opacity', isLoading && rows.length > 0 && 'opacity-50')}>
           {isLoading && rows.length === 0 ? (
             Array.from({ length: 5 }, (_, i) => (
               <tr key={`skeleton-${i}`}>
                 {columns.map((column) => (
-                  <td key={column.key} className="px-4 py-3">
-                    <span className="block h-3.5 w-3/4 animate-pulse rounded bg-paper" />
+                  <td key={column.key} className="px-5 py-4">
+                    <span className="block h-3.5 w-3/4 animate-pulse rounded-full bg-surface-2" />
                   </td>
                 ))}
               </tr>
             ))
           ) : rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-12 text-center text-sm text-ink-muted">
+              <td colSpan={columns.length} className="px-5 py-14 text-center text-sm text-ink-muted">
                 {emptyMessage}
               </td>
             </tr>
           ) : (
             rows.map((row) => (
-              <tr key={getRowKey(row)} className="hover:bg-paper/60">
+              <tr key={getRowKey(row)} className="group transition-all duration-200 hover:bg-tag/[0.09] hover:shadow-[inset_3px_0_0_var(--tag)]">
                 {columns.map((column) => (
                   <td
                     key={column.key}
                     className={cn(
-                      'px-4 py-3 align-middle',
+                      'px-5 py-4 align-middle',
                       column.align === 'right' && 'text-right',
                       column.className,
                     )}
