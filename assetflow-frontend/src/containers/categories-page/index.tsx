@@ -1,7 +1,7 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { CheckCircle2, Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
@@ -102,32 +102,3 @@ export default function CategoriesPage() {
   );
 }
 
-function Banner({
-  tone,
-  children,
-  onDismiss,
-}: {
-  tone: 'success' | 'error';
-  children: ReactNode;
-  onDismiss: () => void;
-}) {
-  const styles =
-    tone === 'success'
-      ? 'bg-emerald-500/12 text-emerald-800 dark:text-emerald-300'
-      : 'bg-red-500/10 text-red-700 dark:text-red-300';
-
-  return (
-    <div role="status" className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm ${styles}`}>
-      {tone === 'success' && <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />}
-      <p className="flex-1">{children}</p>
-      <button
-        type="button"
-        onClick={onDismiss}
-        aria-label="Dismiss message"
-        className="rounded-full p-1 transition hover:bg-black/5 dark:hover:bg-white/10"
-      >
-        <X className="h-4 w-4" aria-hidden="true" />
-      </button>
-    </div>
-  );
-}
