@@ -82,6 +82,7 @@ export default function AssetsPage() {
             onSortChange={page.changeSort}
                         onView={page.openDetail}
             onEdit={page.openEdit}
+            activeAssetId={page.selectedAssetId}
           />
           <Pagination
             meta={page.meta}
@@ -129,7 +130,7 @@ export default function AssetsPage() {
         onConfirm={page.confirmDeactivate}
         onCancel={page.cancelDeactivate}
       />
-      
+
     </div>
   );
 }

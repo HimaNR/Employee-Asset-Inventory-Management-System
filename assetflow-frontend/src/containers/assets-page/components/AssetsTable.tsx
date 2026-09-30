@@ -13,8 +13,11 @@ interface AssetsTableProps {
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
   onView: (asset: Asset) => void;
-  onEdit: (asset: Asset) => void;
+    onEdit: (asset: Asset) => void;
+  /** The asset open in the detail drawer (its row is highlighted) */
+  activeAssetId: string | null;
 }
+
 
 /** Condition as a 4-step meter: NEW 4 bars, GOOD 3, FAIR 2, DAMAGED 1 */
 const CONDITION_LEVEL: Record<AssetCondition, { level: number; color: string }> = {
@@ -135,6 +138,7 @@ export function AssetsTable({
   onSortChange,
   onView,
   onEdit,
+  activeAssetId,
 }: AssetsTableProps) {
   const columns: TableColumn<Asset>[] = [
     ...BASE_COLUMNS,
@@ -176,6 +180,8 @@ export function AssetsTable({
       isLoading={isLoading}
       sort={sort}
       onSortChange={onSortChange}
+      onRowClick={onView}
+      activeRowKey={activeAssetId}
       emptyMessage="No assets match your filters."
     />
   );
