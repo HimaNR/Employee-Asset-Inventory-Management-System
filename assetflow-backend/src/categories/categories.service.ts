@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import type { Prisma } from '../generated/prisma/client';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { paginate, toSkipTake } from '../common/utils/pagination.util';
@@ -72,6 +77,24 @@ export class CategoriesService {
       select: categorySelect,
     });
     return toCategoryResponse(category);
+  }
+
+  /** Used by other modules (Assets): the category must exist AND be active */
+  async assertUsable(id: string): Promise<void> {
+    const category = await this.prisma.assetCategory.findUnique({
+      where: { id },
+      select: { name: true, isActive: true },
+    });
+    if (!category) {
+      throw categoryNotFound(id);
+    }
+    if (!category.isActive) {
+      throw new UnprocessableEntityException({
+        type: 'category-inactive',
+        title: 'Category is inactive',
+        detail: `Category "${category.name}" is deactivated and cannot be used for assets.`,
+      });
+    }
   }
 
   /** Names are unique regardless of case: "laptop" clashes with "Laptop" */
