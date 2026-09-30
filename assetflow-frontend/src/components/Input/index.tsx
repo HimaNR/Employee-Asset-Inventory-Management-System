@@ -27,7 +27,7 @@ export default function Input({
     <div className={cn('flex flex-col gap-1.5', className)}>
       <label
         htmlFor={inputId}
-        className={cn('text-sm font-medium text-ink', hideLabel && 'sr-only')}
+        className={cn('text-sm text-ink-muted', hideLabel && 'sr-only')}
       >
         {label}
         {required && <span className="ml-0.5 text-red-600">*</span>}
@@ -38,8 +38,8 @@ export default function Input({
         aria-invalid={error ? true : undefined}
         aria-describedby={[hintId, errorId].filter(Boolean).join(' ') || undefined}
         className={cn(
-          'h-10 rounded-md border bg-white px-3 text-sm text-ink placeholder:text-ink-muted/70 disabled:bg-paper disabled:text-ink-muted',
-          error ? 'border-red-500' : 'border-line',
+          'h-11 rounded-xl border bg-surface-2 px-4 text-sm text-ink transition-all duration-200 placeholder:text-ink-muted/70 hover:border-ink-muted/40 focus:bg-surface disabled:opacity-60',
+          error ? 'border-red-500' : 'border-transparent',
         )}
         {...rest}
       />
@@ -49,7 +49,7 @@ export default function Input({
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-xs text-red-600">
+        <p id={errorId} className="text-xs text-red-600 dark:text-red-400">
           {error}
         </p>
       )}

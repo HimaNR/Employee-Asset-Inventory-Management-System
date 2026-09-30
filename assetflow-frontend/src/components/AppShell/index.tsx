@@ -26,12 +26,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-      <div className="flex min-h-screen min-w-0 flex-col lg:pl-64">
+      {/* 15rem sidebar + 0.75rem gap on each side = 16.5rem */}
+      <div className="flex min-h-screen min-w-0 flex-col lg:pl-[16.5rem]">
         <Header
           title={current?.label ?? 'AssetFlow'}
           onMenuClick={() => setIsSidebarOpen(true)}
         />
-        <main className="w-full max-w-7xl flex-1 px-4 py-6 sm:px-8">{children}</main>
+        <main className="w-full max-w-7xl flex-1 px-4 pt-2 pb-10 sm:px-8">{children}</main>
       </div>
     </div>
   );
