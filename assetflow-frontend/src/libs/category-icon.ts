@@ -13,6 +13,7 @@ import {
   Tablet,
   type LucideIcon,
 } from 'lucide-react';
+import { createElement } from 'react';
 
 /** Keyword -> icon. The first rule whose keyword appears in the name wins. */
 const RULES: Array<{ keywords: string[]; icon: LucideIcon }> = [
@@ -33,4 +34,13 @@ const RULES: Array<{ keywords: string[]; icon: LucideIcon }> = [
 export function categoryIcon(categoryName: string): LucideIcon {
   const name = categoryName.toLowerCase();
   return RULES.find((rule) => rule.keywords.some((k) => name.includes(k)))?.icon ?? Package;
+}
+
+/**
+ * <CategoryIcon name="Laptop" /> renders the matching icon.
+ * createElement (not <Icon />) because the icon is chosen at runtime:
+ * React's lint rule forbids creating component variables inside render.
+ */
+export function CategoryIcon({ name, className }: { name: string; className?: string }) {
+  return createElement(categoryIcon(name), { className, 'aria-hidden': true });
 }
