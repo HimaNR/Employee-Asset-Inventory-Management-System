@@ -4,6 +4,7 @@ import Button from '@/components/Button';
 import Pagination from '@/components/Pagination';
 import { AssetFilters } from './components/AssetFilters';
 import { AssetsTable } from './components/AssetsTable';
+import { StatusSummary } from './components/StatusSummary';
 import { useAssetsPage } from './hooks/useAssetsPage';
 
 export default function AssetsPage() {
@@ -11,16 +12,37 @@ export default function AssetsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-4xl font-light tracking-tight tabular-nums">{page.meta.total}</p>
-        <p className="mt-1 text-sm text-ink-muted">
-          {page.canClearFilters ? 'assets match your filters' : 'active assets'}
+      {/* Headline */}
+      <div className="flex items-end gap-4">
+        <p className="text-6xl font-light tracking-tight tabular-nums">{page.meta.total}</p>
+        <p className="pb-2 text-sm leading-tight text-ink-muted">
+          {page.canClearFilters ? (
+            <>
+              assets match
+              <br />
+              your filters
+            </>
+          ) : (
+            <>
+              active assets
+              <br />
+              in inventory
+            </>
+          )}
         </p>
       </div>
+
+      {/* Status chips double as the status filter */}
+      <StatusSummary
+        counts={page.statusCounts}
+        selected={page.filters.status}
+        onSelect={(status) => page.changeFilters({ status })}
+      />
 
       <AssetFilters
         filters={page.filters}
         categoryOptions={page.categoryOptions}
+        employeeOptions={page.employeeOptions}
         canClear={page.canClearFilters}
         onChange={page.changeFilters}
         onClear={page.clearFilters}

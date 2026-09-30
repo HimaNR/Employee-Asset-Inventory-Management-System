@@ -7,6 +7,7 @@ export interface AssetFilters {
   search: string;
   status: AssetStatus | '';
   categoryId: string;
+  employeeId: string;
   condition: AssetCondition | '';
   activity: ActivityFilter;
 }
@@ -15,6 +16,7 @@ export const DEFAULT_FILTERS: AssetFilters = {
   search: '',
   status: '',
   categoryId: '',
+  employeeId: '',
   condition: '',
   activity: 'active',
 };
@@ -24,6 +26,7 @@ export function hasCustomFilters(filters: AssetFilters): boolean {
     filters.search !== '' ||
     filters.status !== '' ||
     filters.categoryId !== '' ||
+    filters.employeeId !== '' ||
     filters.condition !== '' ||
     filters.activity !== DEFAULT_FILTERS.activity
   );
@@ -43,6 +46,7 @@ export function toAssetQuery(
     search: search.trim() || undefined,
     status: filters.status || undefined,
     categoryId: filters.categoryId || undefined,
+    employeeId: filters.employeeId || undefined,
     condition: filters.condition || undefined,
     isActive: filters.activity === '' ? undefined : filters.activity === 'active',
     sortBy: sort.sortBy as AssetSortField,
