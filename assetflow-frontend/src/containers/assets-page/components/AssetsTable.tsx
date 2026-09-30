@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react';
+import { Eye , Pencil } from 'lucide-react';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
 import Table, { type TableColumn, type TableSort } from '@/components/Table';
@@ -12,6 +12,7 @@ interface AssetsTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
+  onView: (asset: Asset) => void;
   onEdit: (asset: Asset) => void;
 }
 
@@ -127,7 +128,14 @@ const BASE_COLUMNS: TableColumn<Asset>[] = [
   },
 ];
 
-export function AssetsTable({ assets, isLoading, sort, onSortChange, onEdit }: AssetsTableProps) {
+export function AssetsTable({
+  assets,
+  isLoading,
+  sort,
+  onSortChange,
+  onView,
+  onEdit,
+}: AssetsTableProps) {
   const columns: TableColumn<Asset>[] = [
     ...BASE_COLUMNS,
     {
@@ -135,15 +143,26 @@ export function AssetsTable({ assets, isLoading, sort, onSortChange, onEdit }: A
       header: 'Actions',
       align: 'right',
       cell: (asset) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onEdit(asset)}
-          aria-label={`Edit ${asset.assetCode}`}
-        >
-          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-          Edit
-        </Button>
+        <div className="flex justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onView(asset)}
+            aria-label={`View ${asset.assetCode}`}
+          >
+            <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+            View
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(asset)}
+            aria-label={`Edit ${asset.assetCode}`}
+          >
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+            Edit
+          </Button>
+        </div>
       ),
     },
   ];

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAssetDetail } from './useAssetDetail';
 import type { SelectOption } from '@/components/Select';
 import type { TableSort } from '@/components/Table';
 import { ApiError, isAbortError } from '@/libs/api/api-error';
@@ -182,6 +183,53 @@ export function useAssetsPage() {
     }
   };
 
+    // ---------- detail drawer ----------
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
+  const detail = useAssetDetail(selectedAssetId, reloadKey);
+  const [actionError, setActionError] = useState<ApiError | null>(null);
+
+  const openDetail = (asset: Asset) => {
+    setActionError(null);
+    setSelectedAssetId(asset.id);
+  };
+  const closeDetail = () => setSelectedAssetId(null);
+
+  // ---------- deactivate (with confirmation) / reactivate ----------
+  const [toDeactivate, setToDeactivate] = useState<Asset | null>(null);
+  const [isDeactivating, setIsDeactivating] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+
+  const confirmDeactivate = async () => {
+    if (!toDeactivate) return;
+    setIsDeactivating(true);
+    setActionError(null);
+    try {
+      const saved = await assetsService.deactivate(toDeactivate.id);
+      setNotice(`${saved.assetCode} was deactivated.`);
+      reload();
+    } catch (err) {
+      // e.g. 409 asset-currently-assigned: shown inside the drawer
+      setActionError(ApiError.from(err));
+    } finally {
+      setIsDeactivating(false);
+      setToDeactivate(null);
+    }
+  };
+
+  const reactivate = async (asset: Asset) => {
+    setIsReactivating(true);
+    setActionError(null);
+    try {
+      const saved = await assetsService.reactivate(asset.id);
+      setNotice(`${saved.assetCode} was reactivated.`);
+      reload();
+    } catch (err) {
+      setActionError(ApiError.from(err));
+    } finally {
+      setIsReactivating(false);
+    }
+  };
+
   // ---------- handlers (every filter change goes back to page 1) ----------
   const changeFilters = (patch: Partial<AssetFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -227,5 +275,20 @@ export function useAssetsPage() {
     openEdit,
     closeForm,
     saveAsset,
+        // detail drawer
+    selectedAssetId,
+    detail,
+    openDetail,
+    closeDetail,
+    actionError,
+    dismissActionError: () => setActionError(null),
+    // deactivate / reactivate
+    toDeactivate,
+    isDeactivating,
+    askDeactivate: setToDeactivate,
+    cancelDeactivate: () => setToDeactivate(null),
+    confirmDeactivate,
+    isReactivating,
+    reactivate,
   };
 }

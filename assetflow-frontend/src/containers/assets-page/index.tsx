@@ -9,6 +9,8 @@ import { AssetFormModal } from './components/AssetFormModal';
 import { AssetsTable } from './components/AssetsTable';
 import { StatusSummary } from './components/StatusSummary';
 import { useAssetsPage } from './hooks/useAssetsPage';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { AssetDetailDrawer } from './components/AssetDetailDrawer';
 
 export default function AssetsPage() {
   const page = useAssetsPage();
@@ -78,6 +80,7 @@ export default function AssetsPage() {
             isLoading={page.isLoading}
             sort={page.sort}
             onSortChange={page.changeSort}
+                        onView={page.openDetail}
             onEdit={page.openEdit}
           />
           <Pagination
@@ -99,6 +102,34 @@ export default function AssetsPage() {
         onSubmit={page.saveAsset}
         onClose={page.closeForm}
       />
+            <AssetDetailDrawer
+        open={page.selectedAssetId !== null}
+        asset={page.detail.asset}
+        history={page.detail.history}
+        hasMoreHistory={page.detail.hasMoreHistory}
+        isLoading={page.detail.isLoading}
+        error={page.detail.error}
+        actionError={page.actionError}
+        isReactivating={page.isReactivating}
+        onLoadMoreHistory={page.detail.loadMoreHistory}
+        onEdit={page.openEdit}
+        onDeactivate={page.askDeactivate}
+        onReactivate={page.reactivate}
+        onDismissActionError={page.dismissActionError}
+        onClose={page.closeDetail}
+      />
+      
+      <ConfirmDialog
+        open={page.toDeactivate !== null}
+        tone="danger"
+        title={`Deactivate ${page.toDeactivate?.assetCode ?? ''}?`}
+        message="It will be hidden from new assignments. Its full history is kept, and you can reactivate it at any time."
+        confirmLabel="Deactivate"
+        isLoading={page.isDeactivating}
+        onConfirm={page.confirmDeactivate}
+        onCancel={page.cancelDeactivate}
+      />
+      
     </div>
   );
 }
