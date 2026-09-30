@@ -1,4 +1,7 @@
+import { RefreshCw } from 'lucide-react';
+import Card from '@/components/Card';
 import type { ApiError } from '@/libs/api/api-error';
+import { cn } from '@/libs/cn';
 import type { HealthResponse } from '@/types/health.types';
 
 interface ApiStatusCardProps {
@@ -12,49 +15,82 @@ export function ApiStatusCard({ health, error, isLoading, onRefresh }: ApiStatus
   const isOnline = health?.status === 'ok';
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+    <Card interactive className="flex flex-col">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-zinc-500">System status</h2>
+        <h3 className="text-lg font-medium">System status</h3>
         <button
           type="button"
           onClick={onRefresh}
           disabled={isLoading}
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
+          aria-label="Refresh status"
+          className="group flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface transition hover:shadow-md disabled:opacity-50"
         >
-          {isLoading ? 'Checking...' : 'Refresh'}
+          <RefreshCw
+            aria-hidden="true"
+            className={cn(
+              'h-4 w-4 transition-transform duration-500 group-hover:rotate-180',
+              isLoading && 'animate-spin',
+            )}
+          />
         </button>
       </div>
 
       {isLoading && !health && !error && (
-        <p className="mt-4 text-sm text-zinc-500">Checking API...</p>
+        <p className="mt-6 text-sm text-ink-muted">Checking the API...</p>
       )}
 
       {health && (
-        <div className="mt-4 space-y-1">
-          <p className="flex items-center gap-2 text-lg font-semibold text-zinc-900">
-            <span
-              className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}`}
-            />
-            API {isOnline ? 'online' : 'degraded'}
+        <div className="mt-6 flex flex-1 flex-col justify-between gap-6">
+          <p className="flex items-center gap-3 text-3xl font-light">
+            <span className="relative flex h-3 w-3">
+              {isOnline && (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              )}
+              <span
+                className={cn(
+                  'relative inline-flex h-3 w-3 rounded-full',
+                  isOnline ? 'bg-emerald-500' : 'bg-red-500',
+                )}
+              />
+            </span>
+            {isOnline ? 'All systems online' : 'Degraded'}
           </p>
-          <p className="text-sm text-zinc-600">
-            Database: {health.checks.database.status} ({health.checks.database.responseTimeMs} ms)
-          </p>
-          <p className="text-xs text-zinc-400">Uptime: {health.uptimeSeconds}s</p>
+
+          <dl className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-surface-2 p-4">
+              <dt className="text-xs text-ink-muted">Database</dt>
+              <dd className="mt-1 text-2xl font-light tabular-nums">
+                {health.checks.database.responseTimeMs}
+                <span className="ml-1 text-sm text-ink-muted">ms</span>
+              </dd>
+            </div>
+            <div className="rounded-2xl bg-surface-2 p-4">
+              <dt className="text-xs text-ink-muted">Uptime</dt>
+              <dd className="mt-1 text-2xl font-light tabular-nums">
+                {formatUptime(health.uptimeSeconds)}
+              </dd>
+            </div>
+          </dl>
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-700">
-          <p className="font-semibold">{error.title}</p>
-          <p>{error.detail}</p>
+        <div className="mt-6 rounded-2xl bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
+          <p className="font-medium">{error.title}</p>
+          <p className="mt-0.5 opacity-90">{error.detail}</p>
           {error.requestId && (
-            <p className="mt-2 font-mono text-xs text-red-500">
-              Request ID: {error.requestId}
-            </p>
+            <p className="mt-2 font-mono text-xs opacity-75">Request ID: {error.requestId}</p>
           )}
         </div>
       )}
-    </section>
+    </Card>
   );
+}
+
+function formatUptime(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${minutes % 60}m`;
 }

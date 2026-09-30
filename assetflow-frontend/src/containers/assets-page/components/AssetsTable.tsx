@@ -1,11 +1,4 @@
-import {
-  Headphones,
-  Laptop,
-  Monitor,
-  Package,
-  Smartphone,
-  type LucideIcon,
-} from 'lucide-react';
+import { categoryIcon } from '@/libs/category-icon';
 import Badge from '@/components/Badge';
 import Table, { type TableColumn, type TableSort } from '@/components/Table';
 import { ASSET_CONDITION_LABEL, ASSET_STATUS_DISPLAY } from '@/libs/asset-display';
@@ -17,16 +10,6 @@ interface AssetsTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
-}
-
-/** A friendly icon per category name (falls back to a box) */
-function categoryIcon(categoryName: string): LucideIcon {
-  const name = categoryName.toLowerCase();
-  if (name.includes('laptop')) return Laptop;
-  if (name.includes('monitor')) return Monitor;
-  if (name.includes('phone')) return Smartphone;
-  if (name.includes('accessor')) return Headphones;
-  return Package;
 }
 
 /** Condition as a 4-step meter: NEW 4 bars, GOOD 3, FAIR 2, DAMAGED 1 */

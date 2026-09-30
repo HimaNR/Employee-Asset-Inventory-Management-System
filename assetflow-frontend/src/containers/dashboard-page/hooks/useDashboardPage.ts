@@ -1,15 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError, isAbortError } from '@/libs/api/api-error';
+import { dashboardService } from '@/services/dashboard/dashboard.service';
 import { healthService } from '@/services/health/health.service';
+import type { DashboardOverview } from '@/types/dashboard.types';
 import type { HealthResponse } from '@/types/health.types';
 
 export function useDashboardPage() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [healthError, setHealthError] = useState<ApiError | null>(null);
+  const [isHealthLoading, setIsHealthLoading] = useState(true);
+
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [overviewError, setOverviewError] = useState<ApiError | null>(null);
+  const [isOverviewLoading, setIsOverviewLoading] = useState(true);
+
   const [reloadKey, setReloadKey] = useState(0);
 
-  // Runs on first load AND every time reloadKey changes
+  // Both requests run in parallel; one failing does not hide the other
   useEffect(() => {
     const controller = new AbortController();
 
@@ -17,26 +24,47 @@ export function useDashboardPage() {
       .getHealth(controller.signal)
       .then((data) => {
         setHealth(data);
-        setError(null);
+        setHealthError(null);
       })
       .catch((err: unknown) => {
-        if (isAbortError(err)) return; // request cancelled, ignore
+        if (isAbortError(err)) return;
         setHealth(null);
-        setError(ApiError.from(err));
+        setHealthError(ApiError.from(err));
       })
       .finally(() => {
-        if (!controller.signal.aborted) setIsLoading(false);
+        if (!controller.signal.aborted) setIsHealthLoading(false);
       });
 
-    // Cleanup: cancel the request if the page closes or a new refresh starts
+    dashboardService
+      .getOverview(controller.signal)
+      .then((data) => {
+        setOverview(data);
+        setOverviewError(null);
+      })
+      .catch((err: unknown) => {
+        if (isAbortError(err)) return;
+        setOverviewError(ApiError.from(err));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsOverviewLoading(false);
+      });
+
     return () => controller.abort();
   }, [reloadKey]);
 
-  // Called from a click event (not an effect), so setState here is fine
   const refresh = useCallback(() => {
-    setIsLoading(true);
+    setIsHealthLoading(true);
+    setIsOverviewLoading(true);
     setReloadKey((key) => key + 1);
   }, []);
 
-  return { health, error, isLoading, refresh };
+  return {
+    health,
+    healthError,
+    isHealthLoading,
+    overview,
+    overviewError,
+    isOverviewLoading,
+    refresh,
+  };
 }

@@ -2,6 +2,8 @@ import { Pencil, Power, RotateCcw } from 'lucide-react';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
 import Table, { type TableColumn, type TableSort } from '@/components/Table';
+import { categoryIcon } from '@/libs/category-icon';
+import { cn } from '@/libs/cn';
 import { formatDate } from '@/libs/format';
 import type { Category } from '@/types/category.types';
 
@@ -31,14 +33,29 @@ export function CategoriesTable({
       key: 'name',
       header: 'Category',
       sortKey: 'name',
-      cell: (category) => (
-        <div className="min-w-[12rem]">
-          <p className="font-medium">{category.name}</p>
-          <p className="mt-0.5 line-clamp-1 text-xs text-ink-muted">
-            {category.description ?? 'No description'}
-          </p>
-        </div>
-      ),
+      cell: (category) => {
+        const Icon = categoryIcon(category.name);
+        return (
+          <div className="flex min-w-[14rem] items-center gap-3">
+            <span
+              className={cn(
+                'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-200 group-hover:scale-105 group-hover:-rotate-3',
+                category.isActive ? 'bg-tag/25 text-ink' : 'bg-surface-2 text-ink-muted',
+              )}
+            >
+              <Icon className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className={cn('font-medium', !category.isActive && 'text-ink-muted')}>
+                {category.name}
+              </p>
+              <p className="mt-0.5 line-clamp-1 text-xs text-ink-muted">
+                {category.description ?? 'No description'}
+              </p>
+            </div>
+          </div>
+        );
+      },
     },
     {
       key: 'assets',

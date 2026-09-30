@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
+import Card from '@/components/Card';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
@@ -64,6 +65,7 @@ export default function UiKitPage() {
 
       <Section title="Buttons">
         <Button>Primary</Button>
+        <Button variant="accent">Accent</Button>
         <Button variant="secondary">Secondary</Button>
         <Button variant="danger">Danger</Button>
         <Button variant="ghost">Ghost</Button>
@@ -160,11 +162,11 @@ export default function UiKitPage() {
 
 function Section({ title, grid, children }: { title: string; grid?: boolean; children: ReactNode }) {
   return (
-    <section className="rounded-lg border border-line bg-white p-5">
-      <h2 className="mb-4 text-sm font-semibold">{title}</h2>
+    <Card>
+      <h2 className="mb-4 text-lg font-medium">{title}</h2>
       <div className={grid ? 'grid gap-4 md:grid-cols-2' : 'flex flex-wrap items-start gap-3'}>
         {children}
       </div>
-    </section>
+    </Card>
   );
 }
