@@ -1,32 +1,88 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #1b2430;
-  --color-ink-muted: #5b6573;
-  --color-paper: #f5f6f8;
-  --color-line: #e2e5ea;
-  --color-tag: #f2c230;
-  --color-tag-ink: #3a2e00;
-  --color-focus: #3b6fd8;
+/* "dark:" utilities apply when <html> has the class "dark" */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Light theme ---------- */
+:root {
+  --canvas: #efeee9;
+  --canvas-glow: rgba(246, 207, 69, 0.34);
+  --surface: #ffffff;
+  --surface-2: #f4f3ef;
+  --ink: #1d1d1f;
+  --ink-muted: #6e6d68;
+  --line: #e5e3dc;
+  --contrast: #1d1d1f;
+  --contrast-fg: #ffffff;
+  --tag: #f6cf45;
+  --tag-ink: #2a2100;
+  --sidebar: #1d1d1f;
+  --sidebar-fg: #f4f3ef;
+  --focus: #3b6fd8;
+  color-scheme: light;
 }
 
+/* ---------- Dark theme ---------- */
+.dark {
+  --canvas: #111110;
+  --canvas-glow: rgba(246, 207, 69, 0.09);
+  --surface: #1b1b1a;
+  --surface-2: #242422;
+  --ink: #f2f1ec;
+  --ink-muted: #a3a29b;
+  --line: #2f2e2b;
+  --contrast: #f2f1ec;
+  --contrast-fg: #151514;
+  --tag: #f6cf45;
+  --tag-ink: #1d1d1f;
+  --sidebar: #0a0a09;
+  --sidebar-fg: #f2f1ec;
+  --focus: #8aabff;
+  color-scheme: dark;
+}
+
+/* Expose the variables as Tailwind colors: bg-surface, text-ink, border-line ... */
 @theme inline {
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-contrast: var(--contrast);
+  --color-contrast-fg: var(--contrast-fg);
+  --color-tag: var(--tag);
+  --color-tag-ink: var(--tag-ink);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-fg: var(--sidebar-fg);
+  --color-focus: var(--focus);
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 body {
-  @apply bg-paper font-sans text-ink antialiased;
+  @apply font-sans text-ink antialiased;
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 520px at 100% 0%, var(--canvas-glow), transparent 65%),
+    radial-gradient(700px 480px at 0% 100%, var(--canvas-glow), transparent 70%),
+    var(--canvas);
+  background-attachment: fixed;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Visible keyboard focus everywhere (accessibility) */
 :focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }

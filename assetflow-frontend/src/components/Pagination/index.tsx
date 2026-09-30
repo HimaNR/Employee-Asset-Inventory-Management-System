@@ -40,7 +40,7 @@ export default function Pagination({
               value={limit}
               disabled={isDisabled}
               onChange={(event) => onLimitChange(Number(event.target.value))}
-              className="h-8 rounded-md border border-line bg-white px-2 text-sm text-ink"
+              className="h-8 cursor-pointer rounded-full border border-line bg-surface px-3 text-sm text-ink transition hover:bg-surface-2"
             >
               {limitOptions.map((option) => (
                 <option key={option} value={option}>
@@ -55,7 +55,7 @@ export default function Pagination({
           Page {page} of {totalPages}
         </span>
 
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           <Button
             variant="secondary"
             size="sm"

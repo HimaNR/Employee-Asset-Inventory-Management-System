@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 import Spinner from '@/components/Spinner';
 import { cn } from '@/libs/cn';
 
-type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
+type Variant = 'primary' | 'accent' | 'secondary' | 'danger' | 'ghost';
 type Size = 'sm' | 'md';
 
 interface ButtonProps extends ComponentProps<'button'> {
@@ -12,15 +12,16 @@ interface ButtonProps extends ComponentProps<'button'> {
 }
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-ink text-white hover:bg-ink/90',
-  secondary: 'border border-line bg-white text-ink hover:bg-paper',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
-  ghost: 'text-ink-muted hover:bg-paper hover:text-ink',
+  primary: 'bg-contrast text-contrast-fg hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10',
+  accent: 'bg-tag text-tag-ink hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#f6cf45]/30',
+  secondary: 'border border-line bg-surface text-ink hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-md',
+  danger: 'bg-red-600 text-white hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/20',
+  ghost: 'text-ink-muted hover:bg-surface-2 hover:text-ink',
 };
 
 const SIZES: Record<Size, string> = {
-  sm: 'h-8 gap-1.5 px-3 text-sm',
-  md: 'h-10 gap-2 px-4 text-sm',
+  sm: 'h-8 gap-1.5 px-3.5 text-sm',
+  md: 'h-10 gap-2 px-5 text-sm',
 };
 
 export default function Button({
@@ -39,7 +40,7 @@ export default function Button({
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-md font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex shrink-0 items-center justify-center rounded-full font-medium transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50',
         VARIANTS[variant],
         SIZES[size],
         className,

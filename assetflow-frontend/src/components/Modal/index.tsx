@@ -54,13 +54,16 @@ export default function Modal({
         if (event.target === dialogRef.current) onClose(); // click on the backdrop
       }}
       className={cn(
-        'm-auto w-[calc(100%-2rem)] rounded-lg border border-line bg-white p-0 text-ink shadow-xl backdrop:bg-ink/40',
+        'm-auto w-[calc(100%-2rem)] rounded-3xl border border-line bg-surface p-0 text-ink shadow-2xl shadow-black/20',
+        'backdrop:bg-black/40 backdrop:backdrop-blur-sm',
+        // Pop-in animation when the dialog opens
+        'transition-[opacity,transform] duration-200 ease-out starting:open:translate-y-2 starting:open:scale-95 starting:open:opacity-0',
         SIZES[size],
       )}
     >
-      <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
+      <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-2">
         <div>
-          <h2 id={titleId} className="text-base font-semibold">
+          <h2 id={titleId} className="text-lg font-medium">
             {title}
           </h2>
           {description && (
@@ -73,16 +76,16 @@ export default function Modal({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="rounded-md p-1 text-ink-muted hover:bg-paper hover:text-ink"
+          className="rounded-full p-1.5 text-ink-muted transition hover:rotate-90 hover:bg-surface-2 hover:text-ink"
         >
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
-      {children && <div className="px-5 py-4">{children}</div>}
+      {children && <div className="px-6 py-4">{children}</div>}
 
       {footer && (
-        <div className="flex justify-end gap-2 border-t border-line bg-paper/60 px-5 py-3">
+        <div className="flex justify-end gap-2 px-6 pt-2 pb-6">
           {footer}
         </div>
       )}

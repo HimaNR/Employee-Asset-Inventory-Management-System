@@ -24,7 +24,7 @@ export default function Textarea({
 
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
-      <label htmlFor={textareaId} className="text-sm font-medium text-ink">
+      <label htmlFor={textareaId} className="text-sm text-ink-muted">
         {label}
         {required && <span className="ml-0.5 text-red-600">*</span>}
       </label>
@@ -35,8 +35,8 @@ export default function Textarea({
         aria-invalid={error ? true : undefined}
         aria-describedby={[hintId, errorId].filter(Boolean).join(' ') || undefined}
         className={cn(
-          'rounded-md border bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-muted/70',
-          error ? 'border-red-500' : 'border-line',
+          'rounded-2xl border bg-surface-2 px-4 py-3 text-sm text-ink transition-all duration-200 placeholder:text-ink-muted/70 hover:border-ink-muted/40 focus:bg-surface',
+          error ? 'border-red-500' : 'border-transparent',
         )}
         {...rest}
       />
@@ -46,7 +46,7 @@ export default function Textarea({
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-xs text-red-600">
+        <p id={errorId} className="text-xs text-red-600 dark:text-red-400">
           {error}
         </p>
       )}
