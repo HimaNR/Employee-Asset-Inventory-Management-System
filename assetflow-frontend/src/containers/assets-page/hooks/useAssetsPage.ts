@@ -8,12 +8,14 @@ import { categoriesService } from '@/services/categories/categories.service';
 import { employeesService } from '@/services/employees/employees.service';
 import type { PaginationMeta } from '@/types/api.types';
 import type { Asset, AssetQuery, AssetStatus } from '@/types/asset.types';
+import type { Category } from '@/types/category.types';
 import {
   DEFAULT_FILTERS,
   hasCustomFilters,
   toAssetQuery,
   type AssetFilters,
 } from '../utils/asset-filters';
+import { toCreateInput, toUpdateInput, type AssetFormValues } from '../utils/asset-form';
 
 const EMPTY_META: PaginationMeta = { page: 1, limit: 10, total: 0, totalPages: 1 };
 const DEFAULT_SORT: TableSort = { sortBy: 'createdAt', sortOrder: 'desc' };
@@ -76,7 +78,7 @@ export function useAssetsPage() {
   }, [isActiveFilter, reloadKey]);
 
   // ---------- dropdown options: categories + employees ----------
-  const [categoryOptions, setCategoryOptions] = useState<SelectOption[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [employeeOptions, setEmployeeOptions] = useState<SelectOption[]>([]);
   const [optionsKey, setOptionsKey] = useState(0);
 
@@ -93,14 +95,7 @@ export function useAssetsPage() {
 
     categoriesService
       .list({ limit: 100, sortBy: 'name', sortOrder: 'asc' }, controller.signal)
-      .then((response) =>
-        setCategoryOptions(
-          response.data.map((category) => ({
-            value: category.id,
-            label: category.isActive ? category.name : `${category.name} (inactive)`,
-          })),
-        ),
-      )
+      .then((response) => setCategories(response.data))
       .catch(() => {
         // Not critical: the filter just stays empty
       });
@@ -123,6 +118,69 @@ export function useAssetsPage() {
 
     return () => controller.abort();
   }, [optionsKey]);
+
+  // Filter: every category (old assets can sit in a deactivated one)
+  const categoryOptions = useMemo<SelectOption[]>(
+    () =>
+      categories.map((category) => ({
+        value: category.id,
+        label: category.isActive ? category.name : `${category.name} (inactive)`,
+      })),
+    [categories],
+  );
+
+  // ---------- messages ----------
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // ---------- create / edit form ----------
+  const [form, setForm] = useState<{ open: boolean; asset: Asset | null; key: number }>({
+    open: false,
+    asset: null,
+    key: 0,
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<ApiError | null>(null);
+
+  // Form: only ACTIVE categories, plus the asset's current one when editing
+  const formCategoryOptions = useMemo<SelectOption[]>(
+    () =>
+      categories
+        .filter((category) => category.isActive || category.id === form.asset?.category.id)
+        .map((category) => ({
+          value: category.id,
+          label: category.isActive ? category.name : `${category.name} (inactive)`,
+        })),
+    [categories, form.asset],
+  );
+
+  const openCreate = () => {
+    setSaveError(null);
+    setForm((f) => ({ open: true, asset: null, key: f.key + 1 }));
+  };
+  const openEdit = (asset: Asset) => {
+    setSaveError(null);
+    setForm((f) => ({ open: true, asset, key: f.key + 1 }));
+  };
+  const closeForm = () => setForm((f) => ({ ...f, open: false }));
+
+  const saveAsset = async (values: AssetFormValues) => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const saved = form.asset
+        ? await assetsService.update(form.asset.id, toUpdateInput(values))
+        : await assetsService.create(toCreateInput(values));
+      closeForm();
+      setNotice(
+        form.asset ? `${saved.assetCode} was updated.` : `${saved.assetCode} was registered.`,
+      );
+      reload(); // refreshes the table AND the status counts
+    } catch (err) {
+      setSaveError(ApiError.from(err));
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // ---------- handlers (every filter change goes back to page 1) ----------
   const changeFilters = (patch: Partial<AssetFilters>) => {
@@ -151,6 +209,7 @@ export function useAssetsPage() {
     filters,
     canClearFilters: hasCustomFilters(filters),
     categoryOptions,
+    formCategoryOptions,
     employeeOptions,
     statusCounts,
     sort,
@@ -159,5 +218,14 @@ export function useAssetsPage() {
     changeSort,
     changePage: setPage,
     changeLimit,
+    notice,
+    dismissNotice: () => setNotice(null),
+    form,
+    isSaving,
+    saveError,
+    openCreate,
+    openEdit,
+    closeForm,
+    saveAsset,
   };
 }

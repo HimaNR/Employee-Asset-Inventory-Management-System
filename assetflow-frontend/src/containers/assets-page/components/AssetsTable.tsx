@@ -1,7 +1,9 @@
-import { categoryIcon } from '@/libs/category-icon';
+import { Pencil } from 'lucide-react';
 import Badge from '@/components/Badge';
+import Button from '@/components/Button';
 import Table, { type TableColumn, type TableSort } from '@/components/Table';
 import { ASSET_CONDITION_LABEL, ASSET_STATUS_DISPLAY } from '@/libs/asset-display';
+import { categoryIcon } from '@/libs/category-icon';
 import { cn } from '@/libs/cn';
 import type { Asset, AssetCondition } from '@/types/asset.types';
 
@@ -10,6 +12,7 @@ interface AssetsTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
+  onEdit: (asset: Asset) => void;
 }
 
 /** Condition as a 4-step meter: NEW 4 bars, GOOD 3, FAIR 2, DAMAGED 1 */
@@ -29,7 +32,7 @@ function initials(fullName: string): string {
     .toUpperCase();
 }
 
-const COLUMNS: TableColumn<Asset>[] = [
+const BASE_COLUMNS: TableColumn<Asset>[] = [
   {
     key: 'asset',
     header: 'Asset',
@@ -38,7 +41,12 @@ const COLUMNS: TableColumn<Asset>[] = [
       const Icon = categoryIcon(asset.category.name);
       return (
         <div className="flex min-w-[16rem] items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-surface-2 text-ink transition-transform duration-200 group-hover:scale-105">
+          <span
+            className={cn(
+              'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-200 group-hover:scale-105 group-hover:-rotate-3',
+              asset.isActive ? 'bg-tag/25 text-ink' : 'bg-surface-2 text-ink-muted',
+            )}
+          >
             <Icon className="h-5 w-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
@@ -119,11 +127,31 @@ const COLUMNS: TableColumn<Asset>[] = [
   },
 ];
 
-export function AssetsTable({ assets, isLoading, sort, onSortChange }: AssetsTableProps) {
+export function AssetsTable({ assets, isLoading, sort, onSortChange, onEdit }: AssetsTableProps) {
+  const columns: TableColumn<Asset>[] = [
+    ...BASE_COLUMNS,
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      cell: (asset) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(asset)}
+          aria-label={`Edit ${asset.assetCode}`}
+        >
+          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+          Edit
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <Table
       caption="Company assets"
-      columns={COLUMNS}
+      columns={columns}
       rows={assets}
       getRowKey={(asset) => asset.id}
       isLoading={isLoading}
