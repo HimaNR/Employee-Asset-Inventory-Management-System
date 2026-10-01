@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAssetDetail } from './useAssetDetail';
 import type { SelectOption } from '@/components/Select';
 import type { TableSort } from '@/components/Table';
 import { ApiError, isAbortError } from '@/libs/api/api-error';
@@ -8,7 +7,9 @@ import { assetsService } from '@/services/assets/assets.service';
 import { categoriesService } from '@/services/categories/categories.service';
 import { employeesService } from '@/services/employees/employees.service';
 import type { PaginationMeta } from '@/types/api.types';
+import type { SearchOption } from '@/components/SearchSelect';
 import type { Asset, AssetQuery, AssetStatus } from '@/types/asset.types';
+import type { Assignment } from '@/types/assignment.types';
 import type { Category } from '@/types/category.types';
 import {
   DEFAULT_FILTERS,
@@ -17,6 +18,7 @@ import {
   type AssetFilters,
 } from '../utils/asset-filters';
 import { toCreateInput, toUpdateInput, type AssetFormValues } from '../utils/asset-form';
+import { useAssetDetail } from './useAssetDetail';
 
 const EMPTY_META: PaginationMeta = { page: 1, limit: 10, total: 0, totalPages: 1 };
 const DEFAULT_SORT: TableSort = { sortBy: 'createdAt', sortOrder: 'desc' };
@@ -183,7 +185,7 @@ export function useAssetsPage() {
     }
   };
 
-    // ---------- detail drawer ----------
+  // ---------- detail drawer ----------
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const detail = useAssetDetail(selectedAssetId, reloadKey);
   const [actionError, setActionError] = useState<ApiError | null>(null);
@@ -228,6 +230,26 @@ export function useAssetsPage() {
     } finally {
       setIsReactivating(false);
     }
+  };
+
+  // ---------- assign dialog (opened from the drawer) ----------
+  const [assignDialog, setAssignDialog] = useState<{
+    open: boolean;
+    key: number;
+    presetAsset: SearchOption | null;
+  }>({ open: false, key: 0, presetAsset: null });
+
+  const openAssign = (asset: Asset) =>
+    setAssignDialog((d) => ({
+      open: true,
+      key: d.key + 1,
+      presetAsset: { value: asset.id, label: `${asset.assetCode} · ${asset.name}` },
+    }));
+  const closeAssign = () => setAssignDialog((d) => ({ ...d, open: false }));
+  const handleAssigned = (assignment: Assignment) => {
+    closeAssign();
+    setNotice(`${assignment.asset.assetCode} was assigned to ${assignment.employee.fullName}.`);
+    reload(); // table, chips AND the open drawer refresh
   };
 
   // ---------- handlers (every filter change goes back to page 1) ----------
@@ -275,7 +297,7 @@ export function useAssetsPage() {
     openEdit,
     closeForm,
     saveAsset,
-        // detail drawer
+    // detail drawer
     selectedAssetId,
     detail,
     openDetail,
@@ -290,5 +312,10 @@ export function useAssetsPage() {
     confirmDeactivate,
     isReactivating,
     reactivate,
+    // assign
+    assignDialog,
+    openAssign,
+    closeAssign,
+    handleAssigned,
   };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, Pencil, Power, RotateCcw } from 'lucide-react';
+import { ArrowRightLeft, Mail, Pencil, Power, RotateCcw } from 'lucide-react';
 import Badge from '@/components/Badge';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
@@ -25,6 +25,7 @@ interface EmployeeDetailDrawerProps {
   isReactivating: boolean;
   onLoadMorePast: () => void;
   onEdit: (employee: Employee) => void;
+  onAssign: (employee: Employee) => void;
   onDeactivate: (employee: Employee) => void;
   onReactivate: (employee: Employee) => void;
   onDismissActionError: () => void;
@@ -43,6 +44,7 @@ export function EmployeeDetailDrawer({
   isReactivating,
   onLoadMorePast,
   onEdit,
+  onAssign,
   onDeactivate,
   onReactivate,
   onDismissActionError,
@@ -76,6 +78,12 @@ export function EmployeeDetailDrawer({
               >
                 {!isReactivating && <RotateCcw className="h-4 w-4" aria-hidden="true" />}
                 Reactivate
+              </Button>
+            )}
+            {isActive && (
+              <Button variant="accent" onClick={() => onAssign(employee)}>
+                <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
+                Assign asset
               </Button>
             )}
             <Button onClick={() => onEdit(employee)}>

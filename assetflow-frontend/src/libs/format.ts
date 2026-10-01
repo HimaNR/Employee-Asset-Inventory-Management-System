@@ -42,3 +42,17 @@ export function daysUntil(dateOnly: string): number {
   const target = new Date(`${dateOnly}T00:00:00.000Z`).getTime();
   return Math.round((target - todayUtc) / 86_400_000);
 }
+
+/** Human length of time between two moments: "5 days", "3 months", "1 year 2 months" */
+export function formatDuration(fromIso: string, toIso?: string | null): string {
+  const from = new Date(fromIso);
+  const to = toIso ? new Date(toIso) : new Date();
+  const days = Math.max(0, Math.floor((to.getTime() - from.getTime()) / 86_400_000));
+  if (days < 1) return 'Today';
+  if (days < 31) return `${days} day${days === 1 ? '' : 's'}`;
+  const months = Math.floor(days / 30.44);
+  if (months < 12) return `${months} month${months === 1 ? '' : 's'}`;
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  return `${years} year${years === 1 ? '' : 's'}${rest ? ` ${rest} month${rest === 1 ? '' : 's'}` : ''}`;
+}

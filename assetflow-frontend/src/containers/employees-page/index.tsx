@@ -5,6 +5,7 @@ import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import AssignAssetDialog from '@/containers/assign-asset-dialog';
 import { EmployeeDetailDrawer } from './components/EmployeeDetailDrawer';
 import { EmployeeFilters } from './components/EmployeeFilters';
 import { EmployeeFormModal } from './components/EmployeeFormModal';
@@ -96,6 +97,7 @@ export default function EmployeesPage() {
         isReactivating={page.isReactivating}
         onLoadMorePast={page.detail.loadMorePast}
         onEdit={page.openEdit}
+        onAssign={page.openAssign}
         onDeactivate={page.askDeactivate}
         onReactivate={page.reactivate}
         onDismissActionError={page.dismissActionError}
@@ -111,6 +113,14 @@ export default function EmployeesPage() {
         serverError={page.saveError}
         onSubmit={page.saveEmployee}
         onClose={page.closeForm}
+      />
+
+      <AssignAssetDialog
+        key={page.assignDialog.key}
+        open={page.assignDialog.open}
+        presetEmployee={page.assignDialog.presetEmployee}
+        onAssigned={page.handleAssigned}
+        onClose={page.closeAssign}
       />
 
       <ConfirmDialog
