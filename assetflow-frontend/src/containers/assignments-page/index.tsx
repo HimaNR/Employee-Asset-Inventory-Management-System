@@ -1,13 +1,91 @@
+'use client';
+
 import { ArrowRightLeft } from 'lucide-react';
+import Banner from '@/components/Banner';
+import Button from '@/components/Button';
+import Pagination from '@/components/Pagination';
+import AssignAssetDialog from '@/containers/assign-asset-dialog';
+import { AssignmentFilters } from './components/AssignmentFilters';
+import { AssignmentsTable } from './components/AssignmentsTable';
+import { useAssignmentsPage } from './hooks/useAssignmentsPage';
 
 export default function AssignmentsPage() {
+  const page = useAssignmentsPage();
+
   return (
-    <section className="flex flex-col items-center rounded-3xl border border-dashed border-line bg-surface/60 px-6 py-16 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-tag text-tag-ink transition-transform duration-300 hover:scale-110 hover:rotate-6">
-        <ArrowRightLeft className="h-5 w-5" aria-hidden="true" />
-      </span>
-      <p className="mt-4 text-lg font-light">Assign available assets to active employees.</p>
-      <p className="mt-1 text-sm text-ink-muted">This screen is built in Phase 4.</p>
-    </section>
+    <div className="space-y-6">
+      {/* Headline + main action */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex items-end gap-4">
+          <p className="text-6xl font-light tracking-tight tabular-nums">{page.meta.total}</p>
+          <p className="pb-2 text-sm leading-tight text-ink-muted">
+            {page.filters.status === 'ACTIVE' && !page.canClearFilters ? (
+              <>
+                assets currently
+                <br />
+                with employees
+              </>
+            ) : (
+              <>
+                assignments match
+                <br />
+                your filters
+              </>
+            )}
+          </p>
+        </div>
+        <Button onClick={page.openAssign}>
+          <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
+          Assign asset
+        </Button>
+      </div>
+
+      <AssignmentFilters
+        filters={page.filters}
+        counts={page.counts}
+        employeeOptions={page.employeeOptions}
+        canClear={page.canClearFilters}
+        onChange={page.changeFilters}
+        onClear={page.clearFilters}
+      />
+
+      {page.notice && (
+        <Banner tone="success" onDismiss={page.dismissNotice}>
+          {page.notice}
+        </Banner>
+      )}
+
+      {page.listError ? (
+        <div className="rounded-3xl bg-red-500/10 p-6 text-sm text-red-700 dark:text-red-300">
+          <p className="font-medium">{page.listError.title}</p>
+          <p className="mt-1">{page.listError.detail}</p>
+          <Button variant="secondary" size="sm" className="mt-4" onClick={page.reload}>
+            Try again
+          </Button>
+        </div>
+      ) : (
+        <>
+          <AssignmentsTable
+            assignments={page.assignments}
+            isLoading={page.isLoading}
+            sort={page.sort}
+            onSortChange={page.changeSort}
+          />
+          <Pagination
+            meta={page.meta}
+            onPageChange={page.changePage}
+            onLimitChange={page.changeLimit}
+            isDisabled={page.isLoading}
+          />
+        </>
+      )}
+
+      <AssignAssetDialog
+        key={page.assignDialog.key}
+        open={page.assignDialog.open}
+        onAssigned={page.handleAssigned}
+        onClose={page.closeAssign}
+      />
+    </div>
   );
 }

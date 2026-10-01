@@ -3,14 +3,15 @@
 import { Plus } from 'lucide-react';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import AssignAssetDialog from '@/containers/assign-asset-dialog';
+import { AssetDetailDrawer } from './components/AssetDetailDrawer';
 import { AssetFilters } from './components/AssetFilters';
 import { AssetFormModal } from './components/AssetFormModal';
 import { AssetsTable } from './components/AssetsTable';
 import { StatusSummary } from './components/StatusSummary';
 import { useAssetsPage } from './hooks/useAssetsPage';
-import ConfirmDialog from '@/components/ConfirmDialog';
-import { AssetDetailDrawer } from './components/AssetDetailDrawer';
 
 export default function AssetsPage() {
   const page = useAssetsPage();
@@ -80,7 +81,7 @@ export default function AssetsPage() {
             isLoading={page.isLoading}
             sort={page.sort}
             onSortChange={page.changeSort}
-                        onView={page.openDetail}
+            onView={page.openDetail}
             onEdit={page.openEdit}
             activeAssetId={page.selectedAssetId}
           />
@@ -93,17 +94,7 @@ export default function AssetsPage() {
         </>
       )}
 
-      <AssetFormModal
-        key={page.form.key}
-        open={page.form.open}
-        asset={page.form.asset}
-        categoryOptions={page.formCategoryOptions}
-        isSubmitting={page.isSaving}
-        serverError={page.saveError}
-        onSubmit={page.saveAsset}
-        onClose={page.closeForm}
-      />
-            <AssetDetailDrawer
+      <AssetDetailDrawer
         open={page.selectedAssetId !== null}
         asset={page.detail.asset}
         history={page.detail.history}
@@ -114,12 +105,32 @@ export default function AssetsPage() {
         isReactivating={page.isReactivating}
         onLoadMoreHistory={page.detail.loadMoreHistory}
         onEdit={page.openEdit}
+        onAssign={page.openAssign}
         onDeactivate={page.askDeactivate}
         onReactivate={page.reactivate}
         onDismissActionError={page.dismissActionError}
         onClose={page.closeDetail}
       />
-      
+
+      <AssetFormModal
+        key={page.form.key}
+        open={page.form.open}
+        asset={page.form.asset}
+        categoryOptions={page.formCategoryOptions}
+        isSubmitting={page.isSaving}
+        serverError={page.saveError}
+        onSubmit={page.saveAsset}
+        onClose={page.closeForm}
+      />
+
+      <AssignAssetDialog
+        key={page.assignDialog.key}
+        open={page.assignDialog.open}
+        presetAsset={page.assignDialog.presetAsset}
+        onAssigned={page.handleAssigned}
+        onClose={page.closeAssign}
+      />
+
       <ConfirmDialog
         open={page.toDeactivate !== null}
         tone="danger"
@@ -130,7 +141,6 @@ export default function AssetsPage() {
         onConfirm={page.confirmDeactivate}
         onCancel={page.cancelDeactivate}
       />
-
     </div>
   );
 }

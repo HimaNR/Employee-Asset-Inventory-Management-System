@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { Pencil, Power, RotateCcw } from 'lucide-react';
+import { ArrowRightLeft, Pencil, Power, RotateCcw } from 'lucide-react';
 import Badge, { type BadgeTone } from '@/components/Badge';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
@@ -25,6 +25,7 @@ interface AssetDetailDrawerProps {
   isReactivating: boolean;
   onLoadMoreHistory: () => void;
   onEdit: (asset: Asset) => void;
+  onAssign: (asset: Asset) => void;
   onDeactivate: (asset: Asset) => void;
   onReactivate: (asset: Asset) => void;
   onDismissActionError: () => void;
@@ -50,6 +51,7 @@ export function AssetDetailDrawer({
   isReactivating,
   onLoadMoreHistory,
   onEdit,
+  onAssign,
   onDeactivate,
   onReactivate,
   onDismissActionError,
@@ -81,6 +83,12 @@ export function AssetDetailDrawer({
               >
                 {!isReactivating && <RotateCcw className="h-4 w-4" aria-hidden="true" />}
                 Reactivate
+              </Button>
+            )}
+            {asset.isActive && asset.status === 'AVAILABLE' && (
+              <Button variant="accent" onClick={() => onAssign(asset)}>
+                <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
+                Assign
               </Button>
             )}
             <Button onClick={() => onEdit(asset)}>

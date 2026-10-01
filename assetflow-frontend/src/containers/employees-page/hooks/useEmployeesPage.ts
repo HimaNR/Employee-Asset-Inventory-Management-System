@@ -4,6 +4,8 @@ import { ApiError, isAbortError } from '@/libs/api/api-error';
 import { useDebouncedValue } from '@/libs/use-debounced-value';
 import { employeesService } from '@/services/employees/employees.service';
 import type { PaginationMeta } from '@/types/api.types';
+import type { SearchOption } from '@/components/SearchSelect';
+import type { Assignment } from '@/types/assignment.types';
 import type { Employee, EmployeeQuery } from '@/types/employee.types';
 import {
   DEFAULT_FILTERS,
@@ -157,6 +159,26 @@ export function useEmployeesPage() {
     }
   };
 
+  // ---------- assign dialog (opened from the drawer) ----------
+  const [assignDialog, setAssignDialog] = useState<{
+    open: boolean;
+    key: number;
+    presetEmployee: SearchOption | null;
+  }>({ open: false, key: 0, presetEmployee: null });
+
+  const openAssign = (employee: Employee) =>
+    setAssignDialog((d) => ({
+      open: true,
+      key: d.key + 1,
+      presetEmployee: { value: employee.id, label: `${employee.fullName} · ${employee.employeeCode}` },
+    }));
+  const closeAssign = () => setAssignDialog((d) => ({ ...d, open: false }));
+  const handleAssigned = (assignment: Assignment) => {
+    closeAssign();
+    setNotice(`${assignment.asset.assetCode} was assigned to ${assignment.employee.fullName}.`);
+    reload(); // table ("Assets held") AND the open drawer refresh
+  };
+
   // ---------- filter handlers (always back to page 1) ----------
   const changeFilters = (patch: Partial<EmployeeFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -218,5 +240,10 @@ export function useEmployeesPage() {
     confirmDeactivate,
     isReactivating,
     reactivate,
+    // assign
+    assignDialog,
+    openAssign,
+    closeAssign,
+    handleAssigned,
   };
 }
