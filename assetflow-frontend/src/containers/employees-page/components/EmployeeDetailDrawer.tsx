@@ -24,11 +24,12 @@ interface EmployeeDetailDrawerProps {
   actionError: ApiError | null;
   isReactivating: boolean;
   onLoadMorePast: () => void;
-  onEdit: (employee: Employee) => void;
-  onAssign: (employee: Employee) => void;
-  onReturn: (assignment: EmployeeAssignment) => void;
-  onDeactivate: (employee: Employee) => void;
-  onReactivate: (employee: Employee) => void;
+  /** Each action is optional: leave it out and its button is hidden (no permission) */
+  onEdit?: (employee: Employee) => void;
+  onAssign?: (employee: Employee) => void;
+  onReturn?: (assignment: EmployeeAssignment) => void;
+  onDeactivate?: (employee: Employee) => void;
+  onReactivate?: (employee: Employee) => void;
   onDismissActionError: () => void;
   onClose: () => void;
 }
@@ -62,7 +63,7 @@ export function EmployeeDetailDrawer({
       footer={
         employee && (
           <>
-            {isActive ? (
+            {isActive && onDeactivate && (
               <Button
                 variant="ghost"
                 onClick={() => onDeactivate(employee)}
@@ -71,7 +72,8 @@ export function EmployeeDetailDrawer({
                 <Power className="h-4 w-4" aria-hidden="true" />
                 Deactivate
               </Button>
-            ) : (
+            )}
+            {!isActive && onReactivate && (
               <Button
                 variant="secondary"
                 onClick={() => onReactivate(employee)}
@@ -82,16 +84,18 @@ export function EmployeeDetailDrawer({
                 Reactivate
               </Button>
             )}
-            {isActive && (
+            {isActive && onAssign && (
               <Button variant="accent" onClick={() => onAssign(employee)}>
                 <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
                 Assign asset
               </Button>
             )}
-            <Button onClick={() => onEdit(employee)}>
-              <Pencil className="h-4 w-4" aria-hidden="true" />
-              Edit employee
-            </Button>
+            {onEdit && (
+              <Button onClick={() => onEdit(employee)}>
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+                Edit employee
+              </Button>
+            )}
           </>
         )
       }

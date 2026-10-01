@@ -7,6 +7,8 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
+import { useCan } from '@/libs/auth/use-session';
+import { PERMISSIONS } from '@/types/auth.types';
 import { EmployeeDetailDrawer } from './components/EmployeeDetailDrawer';
 import { EmployeeFilters } from './components/EmployeeFilters';
 import { EmployeeFormModal } from './components/EmployeeFormModal';
@@ -15,6 +17,10 @@ import { useEmployeesPage } from './hooks/useEmployeesPage';
 
 export default function EmployeesPage() {
   const page = useEmployeesPage();
+  const can = useCan();
+  const canWrite = can(PERMISSIONS.EMPLOYEES_WRITE);
+  const canAssign = can(PERMISSIONS.ASSIGNMENTS_WRITE);
+  const canReturn = can(PERMISSIONS.RETURNS_WRITE);
 
   return (
     <div className="space-y-6">
@@ -38,10 +44,12 @@ export default function EmployeesPage() {
             )}
           </p>
         </div>
-        <Button onClick={page.openCreate}>
-          <UserPlus className="h-4 w-4" aria-hidden="true" />
-          Add employee
-        </Button>
+        {canWrite && (
+          <Button onClick={page.openCreate}>
+            <UserPlus className="h-4 w-4" aria-hidden="true" />
+            Add employee
+          </Button>
+        )}
       </div>
 
       <EmployeeFilters
@@ -74,7 +82,7 @@ export default function EmployeesPage() {
             sort={page.sort}
             onSortChange={page.changeSort}
             onView={page.openDetail}
-            onEdit={page.openEdit}
+            onEdit={canWrite ? page.openEdit : undefined}
             activeEmployeeId={page.selectedEmployeeId}
           />
           <Pagination
@@ -97,11 +105,11 @@ export default function EmployeesPage() {
         actionError={page.actionError}
         isReactivating={page.isReactivating}
         onLoadMorePast={page.detail.loadMorePast}
-        onEdit={page.openEdit}
-        onAssign={page.openAssign}
-        onReturn={page.openReturn}
-        onDeactivate={page.askDeactivate}
-        onReactivate={page.reactivate}
+        onEdit={canWrite ? page.openEdit : undefined}
+        onAssign={canAssign ? page.openAssign : undefined}
+        onReturn={canReturn ? page.openReturn : undefined}
+        onDeactivate={canWrite ? page.askDeactivate : undefined}
+        onReactivate={canWrite ? page.reactivate : undefined}
         onDismissActionError={page.dismissActionError}
         onClose={page.closeDetail}
       />

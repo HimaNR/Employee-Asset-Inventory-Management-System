@@ -5,11 +5,14 @@ import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import Pagination from '@/components/Pagination';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
+import { useCan } from '@/libs/auth/use-session';
+import { PERMISSIONS } from '@/types/auth.types';
 import { ReturnsTable } from './components/ReturnsTable';
 import { useReturnsPage } from './hooks/useReturnsPage';
 
 export default function ReturnsPage() {
   const page = useReturnsPage();
+  const canReturn = useCan()(PERMISSIONS.RETURNS_WRITE);
 
   return (
     <div className="space-y-6">
@@ -32,10 +35,12 @@ export default function ReturnsPage() {
             )}
           </p>
         </div>
-        <Button onClick={page.openReturn}>
-          <Undo2 className="h-4 w-4" aria-hidden="true" />
-          Record a return
-        </Button>
+        {canReturn && (
+          <Button onClick={page.openReturn}>
+            <Undo2 className="h-4 w-4" aria-hidden="true" />
+            Record a return
+          </Button>
+        )}
       </div>
 
       <label className="relative block w-full">

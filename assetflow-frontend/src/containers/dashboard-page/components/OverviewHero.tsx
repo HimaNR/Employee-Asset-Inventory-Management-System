@@ -5,6 +5,8 @@ import { cn } from '@/libs/cn';
 import type { DashboardOverview } from '@/types/dashboard.types';
 
 interface OverviewHeroProps {
+  /** Shown in the greeting, e.g. "Nimal" or "Manager" */
+  greetingName: string;
   overview: DashboardOverview | null;
   error: ApiError | null;
   isLoading: boolean;
@@ -17,13 +19,13 @@ const TODAY = new Intl.DateTimeFormat('en-GB', {
   year: 'numeric',
 });
 
-export function OverviewHero({ overview, error, isLoading }: OverviewHeroProps) {
+export function OverviewHero({ greetingName, overview, error, isLoading }: OverviewHeroProps) {
   return (
     <section className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
       <div className="min-w-0">
         <p className="text-sm text-ink-muted">{TODAY.format(new Date())}</p>
         <h2 className="mt-1 text-4xl font-light tracking-tight sm:text-5xl">
-          Welcome back, Admin
+          Welcome back, {greetingName}
         </h2>
 
         <div className="mt-7">

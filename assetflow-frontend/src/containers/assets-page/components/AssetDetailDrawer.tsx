@@ -29,12 +29,13 @@ interface AssetDetailDrawerProps {
   actionError: ApiError | null;
   isReactivating: boolean;
   onLoadMoreHistory: () => void;
-  onEdit: (asset: Asset) => void;
-  onAssign: (asset: Asset) => void;
-  onReturn: (asset: Asset) => void;
-  onChangeStatus: (asset: Asset, target: AssetStatus) => void;
-  onDeactivate: (asset: Asset) => void;
-  onReactivate: (asset: Asset) => void;
+  /** Each action is optional: leave it out and its button is hidden (no permission) */
+  onEdit?: (asset: Asset) => void;
+  onAssign?: (asset: Asset) => void;
+  onReturn?: (asset: Asset) => void;
+  onChangeStatus?: (asset: Asset, target: AssetStatus) => void;
+  onDeactivate?: (asset: Asset) => void;
+  onReactivate?: (asset: Asset) => void;
   onDismissActionError: () => void;
   onClose: () => void;
 }
@@ -82,7 +83,7 @@ export function AssetDetailDrawer({
       footer={
         asset && (
           <>
-            {asset.isActive ? (
+            {asset.isActive && onDeactivate && (
               <Button
                 variant="ghost"
                 onClick={() => onDeactivate(asset)}
@@ -91,7 +92,8 @@ export function AssetDetailDrawer({
                 <Power className="h-4 w-4" aria-hidden="true" />
                 Deactivate
               </Button>
-            ) : (
+            )}
+            {!asset.isActive && onReactivate && (
               <Button
                 variant="secondary"
                 onClick={() => onReactivate(asset)}
@@ -102,22 +104,24 @@ export function AssetDetailDrawer({
                 Reactivate
               </Button>
             )}
-            {asset.status === 'ASSIGNED' && asset.currentAssignment && (
+            {asset.status === 'ASSIGNED' && asset.currentAssignment && onReturn && (
               <Button variant="accent" onClick={() => onReturn(asset)}>
                 <Undo2 className="h-4 w-4" aria-hidden="true" />
                 Record return
               </Button>
             )}
-            {asset.isActive && asset.status === 'AVAILABLE' && (
+            {asset.isActive && asset.status === 'AVAILABLE' && onAssign && (
               <Button variant="accent" onClick={() => onAssign(asset)}>
                 <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
                 Assign
               </Button>
             )}
-            <Button onClick={() => onEdit(asset)}>
-              <Pencil className="h-4 w-4" aria-hidden="true" />
-              Edit asset
-            </Button>
+            {onEdit && (
+              <Button onClick={() => onEdit(asset)}>
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+                Edit asset
+              </Button>
+            )}
           </>
         )
       }
@@ -142,7 +146,7 @@ export function AssetDetailDrawer({
 
           <HolderCard asset={asset} />
 
-          {asset.isActive && MANUAL_STATUS_TRANSITIONS[asset.status].length > 0 && (
+          {asset.isActive && onChangeStatus && MANUAL_STATUS_TRANSITIONS[asset.status].length > 0 && (
             <section>
               <h3 className="mb-3 text-sm font-medium">Change status</h3>
               <div className="flex flex-wrap gap-2">

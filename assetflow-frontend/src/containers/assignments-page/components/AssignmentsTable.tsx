@@ -13,7 +13,8 @@ interface AssignmentsTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
-  onReturn: (assignment: Assignment) => void;
+  /** Leave out (no permission) and the Actions column disappears */
+  onReturn?: (assignment: Assignment) => void;
 }
 
 const BASE_COLUMNS: TableColumn<Assignment>[] = [
@@ -100,6 +101,21 @@ export function AssignmentsTable({
   onSortChange,
   onReturn,
 }: AssignmentsTableProps) {
+  if (!onReturn) {
+    return (
+      <Table
+        caption="Asset assignments"
+        columns={BASE_COLUMNS}
+        rows={assignments}
+        getRowKey={(a) => a.id}
+        isLoading={isLoading}
+        sort={sort}
+        onSortChange={onSortChange}
+        emptyMessage="No assignments match your filters."
+      />
+    );
+  }
+
   const columns: TableColumn<Assignment>[] = [
     ...BASE_COLUMNS,
     {

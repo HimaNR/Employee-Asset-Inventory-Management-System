@@ -12,7 +12,8 @@ interface EmployeesTableProps {
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
   onView: (employee: Employee) => void;
-  onEdit: (employee: Employee) => void;
+  /** Hidden when the user cannot edit */
+  onEdit?: (employee: Employee) => void;
   activeEmployeeId: string | null;
 }
 
@@ -111,15 +112,17 @@ export function EmployeesTable({
             <Eye className="h-3.5 w-3.5" aria-hidden="true" />
             View
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(employee)}
-            aria-label={`Edit ${employee.fullName}`}
-          >
-            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            Edit
-          </Button>
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(employee)}
+              aria-label={`Edit ${employee.fullName}`}
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+              Edit
+            </Button>
+          )}
         </div>
       ),
     },

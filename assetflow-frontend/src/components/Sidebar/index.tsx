@@ -1,15 +1,17 @@
 import Link from 'next/link';
 import { X } from 'lucide-react';
-import { NAV_SECTIONS, isNavItemActive } from '@/config/navigation.config';
+import { isNavItemActive, type NavSection } from '@/config/navigation.config';
 import { cn } from '@/libs/cn';
 
 interface SidebarProps {
+  /** Only the sections this user may see */
+  sections: NavSection[];
   pathname: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function Sidebar({ pathname, isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ sections, pathname, isOpen, onClose }: SidebarProps) {
   return (
     <>
       {/* Dark overlay behind the drawer on mobile */}
@@ -47,7 +49,7 @@ export default function Sidebar({ pathname, isOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 pb-4 [scrollbar-color:rgba(255,255,255,0.15)_transparent] [scrollbar-width:thin]">
-          {NAV_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <div key={section.title} className="mb-5">
               <p className="px-3.5 pb-2 text-[11px] font-medium tracking-wide text-sidebar-fg/40">
                 {section.title}
