@@ -86,7 +86,7 @@ export class AssignmentsService {
    * 2. asset exists and is AVAILABLE
    * 3. ONE transaction: create assignment + asset -> ASSIGNED + history ASSIGNED
    */
-  async create(dto: CreateAssignmentDto): Promise<AssignmentResponse> {
+  async create(dto: CreateAssignmentDto, actorId: string): Promise<AssignmentResponse> {
     const assignedAt = dto.assignedAt ? new Date(dto.assignedAt) : new Date();
     if (assignedAt.getTime() > Date.now() + FUTURE_TOLERANCE_MS) {
       throw new BadRequestException({
@@ -159,7 +159,7 @@ export class AssignmentsService {
             employeeId: employee.id,
             assignedAt,
             notes: dto.notes,
-            // assignedById is filled in once login exists (security phase)
+            assignedById: actorId, // who handed it over
           },
           select: assignmentSelect,
         });
@@ -172,6 +172,7 @@ export class AssignmentsService {
           newStatus: 'ASSIGNED',
           description: `Assigned to ${employeeName} (${employee.employeeCode})`,
           metadata: { employeeId: employee.id },
+          performedById: actorId,
         });
 
         return assignment;

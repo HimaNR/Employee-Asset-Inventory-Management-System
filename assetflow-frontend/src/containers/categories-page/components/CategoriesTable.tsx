@@ -12,9 +12,10 @@ interface CategoriesTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
-  onEdit: (category: Category) => void;
-  onDeactivate: (category: Category) => void;
-  onReactivate: (category: Category) => void;
+  /** Leave the actions out (no permission) and the Actions column disappears */
+  onEdit?: (category: Category) => void;
+  onDeactivate?: (category: Category) => void;
+  onReactivate?: (category: Category) => void;
   reactivatingId: string | null;
 }
 
@@ -28,7 +29,8 @@ export function CategoriesTable({
   onReactivate,
   reactivatingId,
 }: CategoriesTableProps) {
-  const columns: TableColumn<Category>[] = [
+  const canAct = Boolean(onEdit || onDeactivate || onReactivate);
+  const allColumns: TableColumn<Category>[] = [
     {
       key: 'name',
       header: 'Category',
@@ -87,16 +89,18 @@ export function CategoriesTable({
       align: 'right',
       cell: (category) => (
         <div className="flex justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(category)}
-            aria-label={`Edit ${category.name}`}
-          >
-            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            Edit
-          </Button>
-          {category.isActive ? (
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(category)}
+              aria-label={`Edit ${category.name}`}
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+              Edit
+            </Button>
+          )}
+          {category.isActive && onDeactivate && (
             <Button
               variant="ghost"
               size="sm"
@@ -107,7 +111,8 @@ export function CategoriesTable({
               <Power className="h-3.5 w-3.5" aria-hidden="true" />
               Deactivate
             </Button>
-          ) : (
+          )}
+          {!category.isActive && onReactivate && (
             <Button
               variant="ghost"
               size="sm"
@@ -125,6 +130,7 @@ export function CategoriesTable({
       ),
     },
   ];
+  const columns = canAct ? allColumns : allColumns.filter((c) => c.key !== 'actions');
 
   return (
     <Table

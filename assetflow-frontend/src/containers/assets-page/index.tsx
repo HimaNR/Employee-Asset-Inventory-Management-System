@@ -7,6 +7,8 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
+import { useCan } from '@/libs/auth/use-session';
+import { PERMISSIONS } from '@/types/auth.types';
 import { AssetDetailDrawer } from './components/AssetDetailDrawer';
 import { AssetFilters } from './components/AssetFilters';
 import { AssetFormModal } from './components/AssetFormModal';
@@ -17,6 +19,12 @@ import { useAssetsPage } from './hooks/useAssetsPage';
 
 export default function AssetsPage() {
   const page = useAssetsPage();
+  // The UI hides what the role cannot do; the API enforces it anyway
+  const can = useCan();
+  const canWrite = can(PERMISSIONS.ASSETS_WRITE);
+  const canChangeStatus = can(PERMISSIONS.ASSETS_STATUS);
+  const canAssign = can(PERMISSIONS.ASSIGNMENTS_WRITE);
+  const canReturn = can(PERMISSIONS.RETURNS_WRITE);
 
   return (
     <div className="space-y-6">
@@ -40,10 +48,12 @@ export default function AssetsPage() {
             )}
           </p>
         </div>
-        <Button onClick={page.openCreate}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          New asset
-        </Button>
+        {canWrite && (
+          <Button onClick={page.openCreate}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New asset
+          </Button>
+        )}
       </div>
 
       {/* Status chips double as the status filter */}
@@ -84,7 +94,7 @@ export default function AssetsPage() {
             sort={page.sort}
             onSortChange={page.changeSort}
             onView={page.openDetail}
-            onEdit={page.openEdit}
+            onEdit={canWrite ? page.openEdit : undefined}
             activeAssetId={page.selectedAssetId}
           />
           <Pagination
@@ -106,12 +116,12 @@ export default function AssetsPage() {
         actionError={page.actionError}
         isReactivating={page.isReactivating}
         onLoadMoreHistory={page.detail.loadMoreHistory}
-        onEdit={page.openEdit}
-        onAssign={page.openAssign}
-        onReturn={page.openReturn}
-        onChangeStatus={page.openStatusChange}
-        onDeactivate={page.askDeactivate}
-        onReactivate={page.reactivate}
+        onEdit={canWrite ? page.openEdit : undefined}
+        onAssign={canAssign ? page.openAssign : undefined}
+        onReturn={canReturn ? page.openReturn : undefined}
+        onChangeStatus={canChangeStatus ? page.openStatusChange : undefined}
+        onDeactivate={canWrite ? page.askDeactivate : undefined}
+        onReactivate={canWrite ? page.reactivate : undefined}
         onDismissActionError={page.dismissActionError}
         onClose={page.closeDetail}
       />

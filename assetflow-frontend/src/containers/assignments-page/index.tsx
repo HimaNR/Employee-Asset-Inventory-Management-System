@@ -6,12 +6,15 @@ import Button from '@/components/Button';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
+import { useCan } from '@/libs/auth/use-session';
+import { PERMISSIONS } from '@/types/auth.types';
 import { AssignmentFilters } from './components/AssignmentFilters';
 import { AssignmentsTable } from './components/AssignmentsTable';
 import { useAssignmentsPage } from './hooks/useAssignmentsPage';
 
 export default function AssignmentsPage() {
   const page = useAssignmentsPage();
+  const can = useCan();
 
   return (
     <div className="space-y-6">
@@ -35,10 +38,12 @@ export default function AssignmentsPage() {
             )}
           </p>
         </div>
-        <Button onClick={page.openAssign}>
-          <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
-          Assign asset
-        </Button>
+        {can(PERMISSIONS.ASSIGNMENTS_WRITE) && (
+          <Button onClick={page.openAssign}>
+            <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
+            Assign asset
+          </Button>
+        )}
       </div>
 
       <AssignmentFilters
@@ -71,7 +76,7 @@ export default function AssignmentsPage() {
             isLoading={page.isLoading}
             sort={page.sort}
             onSortChange={page.changeSort}
-            onReturn={page.openReturn}
+            onReturn={can(PERMISSIONS.RETURNS_WRITE) ? page.openReturn : undefined}
           />
           <Pagination
             meta={page.meta}

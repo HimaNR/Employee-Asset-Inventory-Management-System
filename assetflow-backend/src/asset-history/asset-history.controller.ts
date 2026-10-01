@@ -1,5 +1,7 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { PERMISSIONS } from '../common/constants/permissions.constant';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { AssetHistoryService } from './asset-history.service';
 
@@ -10,6 +12,7 @@ export class AssetHistoryController {
 
   /** Lifecycle timeline of one asset (newest first by default) */
   @Get()
+  @Permissions(PERMISSIONS.ASSETS_READ)
   findByAsset(
     @Param('assetId', ParseUUIDPipe) assetId: string,
     @Query() query: PaginationQueryDto,

@@ -1,4 +1,4 @@
-import { Eye , Pencil } from 'lucide-react';
+import { Eye, Pencil } from 'lucide-react';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
 import Table, { type TableColumn, type TableSort } from '@/components/Table';
@@ -13,11 +13,11 @@ interface AssetsTableProps {
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
   onView: (asset: Asset) => void;
-    onEdit: (asset: Asset) => void;
+  /** Hidden when the user cannot edit */
+  onEdit?: (asset: Asset) => void;
   /** The asset open in the detail drawer (its row is highlighted) */
   activeAssetId: string | null;
 }
-
 
 /** Condition as a 4-step meter: NEW 4 bars, GOOD 3, FAIR 2, DAMAGED 1 */
 const CONDITION_LEVEL: Record<AssetCondition, { level: number; color: string }> = {
@@ -157,15 +157,17 @@ export function AssetsTable({
             <Eye className="h-3.5 w-3.5" aria-hidden="true" />
             View
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(asset)}
-            aria-label={`Edit ${asset.assetCode}`}
-          >
-            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            Edit
-          </Button>
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(asset)}
+              aria-label={`Edit ${asset.assetCode}`}
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+              Edit
+            </Button>
+          )}
         </div>
       ),
     },

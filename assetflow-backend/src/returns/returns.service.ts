@@ -26,7 +26,7 @@ export class ReturnsService {
    * validate active assignment -> set returnedAt / returnCondition
    * -> calculate next asset status -> write AssetHistory -> ONE transaction
    */
-  async create(dto: CreateReturnDto): Promise<AssignmentResponse> {
+  async create(dto: CreateReturnDto, actorId: string): Promise<AssignmentResponse> {
     const assignment = await this.prisma.assetAssignment.findUnique({
       where: { id: dto.assignmentId },
       select: {
@@ -68,7 +68,7 @@ export class ReturnsService {
           returnedAt,
           returnCondition: dto.condition,
           returnNotes: dto.notes,
-          // returnedById is filled in once login exists (security phase)
+          returnedById: actorId, // who received it back
         },
       });
       if (closed.count === 0) {
@@ -90,6 +90,7 @@ export class ReturnsService {
           dto.condition,
         )} condition`,
         metadata: { condition: dto.condition, ...(dto.notes ? { notes: dto.notes } : {}) },
+        performedById: actorId,
       });
 
       return tx.assetAssignment.findUniqueOrThrow({

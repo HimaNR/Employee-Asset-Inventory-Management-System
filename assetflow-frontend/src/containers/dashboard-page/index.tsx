@@ -1,6 +1,7 @@
 'use client';
 
 import Banner from '@/components/Banner';
+import { greetingNameFor, useSession } from '@/libs/auth/use-session';
 import { ApiStatusCard } from './components/ApiStatusCard';
 import { AttentionCard } from './components/AttentionCard';
 import { CategoryBreakdownCard } from './components/CategoryBreakdownCard';
@@ -13,10 +14,12 @@ import { useDashboardPage } from './hooks/useDashboardPage';
 export default function DashboardPage() {
   const page = useDashboardPage();
   const { summary } = page;
+  const session = useSession();
 
   return (
     <div className="space-y-10">
       <OverviewHero
+        greetingName={session ? greetingNameFor(session.user) : ''}
         overview={page.overview}
         error={page.summaryError}
         isLoading={page.isSummaryLoading}

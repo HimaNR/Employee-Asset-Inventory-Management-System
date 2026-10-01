@@ -5,6 +5,8 @@ import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import { useCan } from '@/libs/auth/use-session';
+import { PERMISSIONS } from '@/types/auth.types';
 import { CategoriesTable } from './components/CategoriesTable';
 import { CategoryFilters } from './components/CategoryFilters';
 import { CategoryFormModal } from './components/CategoryFormModal';
@@ -12,6 +14,7 @@ import { useCategoriesPage } from './hooks/useCategoriesPage';
 
 export default function CategoriesPage() {
   const page = useCategoriesPage();
+  const canWrite = useCan()(PERMISSIONS.CATEGORIES_WRITE);
 
   return (
     <div className="space-y-6">
@@ -24,10 +27,12 @@ export default function CategoriesPage() {
             categories
           </p>
         </div>
-        <Button onClick={page.openCreate}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          New category
-        </Button>
+        {canWrite && (
+          <Button onClick={page.openCreate}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New category
+          </Button>
+        )}
       </div>
 
       <CategoryFilters
@@ -64,9 +69,9 @@ export default function CategoriesPage() {
             isLoading={page.isLoading}
             sort={page.sort}
             onSortChange={page.changeSort}
-            onEdit={page.openEdit}
-            onDeactivate={page.askDeactivate}
-            onReactivate={page.reactivate}
+            onEdit={canWrite ? page.openEdit : undefined}
+            onDeactivate={canWrite ? page.askDeactivate : undefined}
+            onReactivate={canWrite ? page.reactivate : undefined}
             reactivatingId={page.reactivatingId}
           />
           <Pagination
@@ -101,4 +106,3 @@ export default function CategoriesPage() {
     </div>
   );
 }
-

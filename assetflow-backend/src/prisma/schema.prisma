@@ -9,7 +9,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// ---------------- Enums ----------------
+// ─────────────── Enums ───────────────
 
 enum AssetStatus {
   AVAILABLE
@@ -52,7 +52,7 @@ enum AssetHistoryAction {
   REACTIVATED
 }
 
-// ---------------- Access control ----------------
+// ─────────────── Access control ───────────────
 
 model Role {
   id          String   @id @default(uuid()) @db.Uuid
@@ -68,14 +68,17 @@ model Role {
 }
 
 model User {
-  id           String     @id @default(uuid()) @db.Uuid
-  email        String     @unique
-  passwordHash String
-  status       UserStatus @default(ACTIVE)
-  roleId       String     @db.Uuid
-  employeeId   String?    @unique @db.Uuid
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id               String     @id @default(uuid()) @db.Uuid
+  email            String     @unique
+  passwordHash     String
+  status           UserStatus @default(ACTIVE)
+  roleId           String     @db.Uuid
+  employeeId       String?    @unique @db.Uuid
+  // SHA-256 of the current refresh token (null = signed out)
+  refreshTokenHash String?
+  lastLoginAt      DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   role                Role              @relation(fields: [roleId], references: [id], onDelete: Restrict)
   employee            Employee?         @relation(fields: [employeeId], references: [id], onDelete: Restrict)
@@ -87,7 +90,7 @@ model User {
   @@map("users")
 }
 
-// ---------------- People ----------------
+// ─────────────── People ───────────────
 
 model Employee {
   id           String         @id @default(uuid()) @db.Uuid
@@ -110,7 +113,7 @@ model Employee {
   @@map("employees")
 }
 
-// ---------------- Inventory ----------------
+// ─────────────── Inventory ───────────────
 
 model AssetCategory {
   id          String   @id @default(uuid()) @db.Uuid
@@ -154,7 +157,7 @@ model Asset {
   @@map("assets")
 }
 
-// ---------------- Workflow ----------------
+// ─────────────── Workflow ───────────────
 
 model AssetAssignment {
   id              String           @id @default(uuid()) @db.Uuid
@@ -185,7 +188,7 @@ model AssetAssignment {
   @@map("asset_assignments")
 }
 
-// ---------------- Audit ----------------
+// ─────────────── Audit ───────────────
 
 model AssetHistory {
   id             String             @id @default(uuid()) @db.Uuid
