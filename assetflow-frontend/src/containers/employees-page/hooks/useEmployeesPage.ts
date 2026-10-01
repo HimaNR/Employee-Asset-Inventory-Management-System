@@ -6,7 +6,7 @@ import { employeesService } from '@/services/employees/employees.service';
 import type { PaginationMeta } from '@/types/api.types';
 import type { SearchOption } from '@/components/SearchSelect';
 import type { Assignment } from '@/types/assignment.types';
-import type { Employee, EmployeeQuery } from '@/types/employee.types';
+import type { Employee, EmployeeAssignment, EmployeeQuery } from '@/types/employee.types';
 import {
   DEFAULT_FILTERS,
   hasCustomFilters,
@@ -179,6 +179,29 @@ export function useEmployeesPage() {
     reload(); // table ("Assets held") AND the open drawer refresh
   };
 
+  // ---------- return dialog (from "Holding now") ----------
+  const [returnDialog, setReturnDialog] = useState<{
+    open: boolean;
+    key: number;
+    presetAssignment: SearchOption | null;
+  }>({ open: false, key: 0, presetAssignment: null });
+
+  const openReturn = (assignment: EmployeeAssignment) =>
+    setReturnDialog((d) => ({
+      open: true,
+      key: d.key + 1,
+      presetAssignment: {
+        value: assignment.id,
+        label: `${assignment.asset.assetCode} · ${assignment.asset.name}`,
+      },
+    }));
+  const closeReturn = () => setReturnDialog((d) => ({ ...d, open: false }));
+  const handleReturned = (assignment: Assignment) => {
+    closeReturn();
+    setNotice(`${assignment.asset.assetCode} was returned by ${assignment.employee.fullName}.`);
+    reload();
+  };
+
   // ---------- filter handlers (always back to page 1) ----------
   const changeFilters = (patch: Partial<EmployeeFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -245,5 +268,10 @@ export function useEmployeesPage() {
     openAssign,
     closeAssign,
     handleAssigned,
+    // return
+    returnDialog,
+    openReturn,
+    closeReturn,
+    handleReturned,
   };
 }

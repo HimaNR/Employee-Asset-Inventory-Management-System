@@ -97,3 +97,8 @@ export interface AssetHistoryEntry {
   performedBy: { id: string; email: string } | null;
   createdAt: string;
 }
+
+export interface ChangeStatusInput {
+  status: AssetStatus;
+  notes?: string;
+}

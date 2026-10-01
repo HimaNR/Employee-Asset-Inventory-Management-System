@@ -9,6 +9,7 @@ import { validate } from './config/environment.validation';
 import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ReturnsModule } from './returns/returns.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AssetsModule,
     EmployeesModule,
     AssignmentsModule,
+    ReturnsModule,
   ],
 })
 export class AppModule {}

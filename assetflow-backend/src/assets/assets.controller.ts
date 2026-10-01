@@ -13,6 +13,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { AssetsService } from './assets.service';
 import { AssetQueryDto } from './dto/asset-query.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 
@@ -50,6 +51,13 @@ export class AssetsController {
   @HttpCode(HttpStatus.OK)
   deactivate(@Param('id', ParseUUIDPipe) id: string) {
     return this.assetsService.deactivate(id);
+  }
+
+  /** Mark damaged / under repair / lost / retired (allowed transitions only) */
+  @Post(':id/status')
+  @HttpCode(HttpStatus.OK)
+  changeStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ChangeStatusDto) {
+    return this.assetsService.changeStatus(id, dto);
   }
 
   @Post(':id/reactivate')

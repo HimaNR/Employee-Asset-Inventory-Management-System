@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRightLeft, Mail, Pencil, Power, RotateCcw } from 'lucide-react';
+import { ArrowRightLeft, Mail, Pencil, Power, RotateCcw, Undo2 } from 'lucide-react';
 import Badge from '@/components/Badge';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
@@ -26,6 +26,7 @@ interface EmployeeDetailDrawerProps {
   onLoadMorePast: () => void;
   onEdit: (employee: Employee) => void;
   onAssign: (employee: Employee) => void;
+  onReturn: (assignment: EmployeeAssignment) => void;
   onDeactivate: (employee: Employee) => void;
   onReactivate: (employee: Employee) => void;
   onDismissActionError: () => void;
@@ -45,6 +46,7 @@ export function EmployeeDetailDrawer({
   onLoadMorePast,
   onEdit,
   onAssign,
+  onReturn,
   onDeactivate,
   onReactivate,
   onDismissActionError,
@@ -163,7 +165,7 @@ export function EmployeeDetailDrawer({
             ) : (
               <ul className="space-y-2">
                 {currentAssignments.map((assignment) => (
-                  <AssignmentRow key={assignment.id} assignment={assignment} />
+                  <AssignmentRow key={assignment.id} assignment={assignment} onReturn={onReturn} />
                 ))}
               </ul>
             )}
@@ -195,7 +197,13 @@ export function EmployeeDetailDrawer({
   );
 }
 
-function AssignmentRow({ assignment }: { assignment: EmployeeAssignment }) {
+function AssignmentRow({
+  assignment,
+  onReturn,
+}: {
+  assignment: EmployeeAssignment;
+  onReturn?: (assignment: EmployeeAssignment) => void;
+}) {
   const isActive = assignment.status === 'ACTIVE';
   const status = ASSET_STATUS_DISPLAY[assignment.asset.status];
 
@@ -219,7 +227,19 @@ function AssignmentRow({ assignment }: { assignment: EmployeeAssignment }) {
         </p>
       </div>
       {isActive ? (
-        <Badge tone={status.tone}>{status.label}</Badge>
+        onReturn ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onReturn(assignment)}
+            aria-label={`Record return of ${assignment.asset.assetCode}`}
+          >
+            <Undo2 className="h-3.5 w-3.5" aria-hidden="true" />
+            Return
+          </Button>
+        ) : (
+          <Badge tone={status.tone}>{status.label}</Badge>
+        )
       ) : (
         assignment.returnCondition && (
           <span className="text-xs text-ink-muted">

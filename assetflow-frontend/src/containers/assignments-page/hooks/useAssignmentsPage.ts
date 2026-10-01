@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { SearchOption } from '@/components/SearchSelect';
 import type { SelectOption } from '@/components/Select';
 import type { TableSort } from '@/components/Table';
 import { ApiError, isAbortError } from '@/libs/api/api-error';
@@ -109,6 +110,29 @@ export function useAssignmentsPage() {
     reload();
   };
 
+  // ---------- return dialog ----------
+  const [returnDialog, setReturnDialog] = useState<{
+    open: boolean;
+    key: number;
+    presetAssignment: SearchOption | null;
+  }>({ open: false, key: 0, presetAssignment: null });
+
+  const openReturn = (assignment: Assignment) =>
+    setReturnDialog((d) => ({
+      open: true,
+      key: d.key + 1,
+      presetAssignment: {
+        value: assignment.id,
+        label: `${assignment.asset.assetCode} · ${assignment.asset.name} (with ${assignment.employee.fullName})`,
+      },
+    }));
+  const closeReturn = () => setReturnDialog((d) => ({ ...d, open: false }));
+  const handleReturned = (assignment: Assignment) => {
+    closeReturn();
+    setNotice(`${assignment.asset.assetCode} was returned by ${assignment.employee.fullName}.`);
+    reload();
+  };
+
   // ---------- handlers ----------
   const changeFilters = (patch: Partial<AssignmentFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -149,5 +173,9 @@ export function useAssignmentsPage() {
     openAssign,
     closeAssign,
     handleAssigned,
+    returnDialog,
+    openReturn,
+    closeReturn,
+    handleReturned,
   };
 }
