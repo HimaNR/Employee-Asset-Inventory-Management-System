@@ -6,6 +6,7 @@ import {
   IsString,
   Max,
   Min,
+  MinLength,
   validateSync,
 } from 'class-validator';
 
@@ -30,11 +31,29 @@ class EnvironmentVariables {
 
   @IsString()
   CORS_ORIGIN: string = 'http://localhost:3000';
+
+  /** Signs access tokens. Long and random; never commit the real value. */
+  @IsString()
+  @MinLength(32)
+  JWT_ACCESS_SECRET!: string;
+
+  /** Signs refresh tokens. Must differ from the access secret. */
+  @IsString()
+  @MinLength(32)
+  JWT_REFRESH_SECRET!: string;
+
+  @IsInt()
+  @Min(60)
+  JWT_ACCESS_TTL_SECONDS: number = 900; // 15 minutes
+
+  @IsInt()
+  @Min(300)
+  JWT_REFRESH_TTL_SECONDS: number = 604800; // 7 days
 }
 
 export function validate(config: Record<string, unknown>) {
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true, // "4000" → 4000
+    enableImplicitConversion: true, // "4000" -> 4000
   });
 
   const errors = validateSync(validatedConfig, {
@@ -46,6 +65,10 @@ export function validate(config: Record<string, unknown>) {
       .map((e) => Object.values(e.constraints ?? {}).join(', '))
       .join('\n');
     throw new Error(`❌ Invalid environment variables:\n${messages}`);
+  }
+
+  if (validatedConfig.JWT_ACCESS_SECRET === validatedConfig.JWT_REFRESH_SECRET) {
+    throw new Error('❌ JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be different.');
   }
 
   return validatedConfig;

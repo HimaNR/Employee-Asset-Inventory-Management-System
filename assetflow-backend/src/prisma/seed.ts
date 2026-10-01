@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { hash } from 'bcryptjs';
+import { ROLE_PERMISSIONS } from '../common/constants/permissions.constant';
 import {
   PrismaClient,
   type AssetCondition,
@@ -16,13 +18,22 @@ if (!connectionString) {
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
-// ---------- Seed data ----------
+// ---------- Access control ----------
 
 const ROLES = [
   { name: 'ADMIN', description: 'Full access to inventory, employees and system users' },
   { name: 'ASSET_MANAGER', description: 'Assigns, receives, repairs and retires assets' },
   { name: 'EMPLOYEE', description: 'Views assets currently assigned to them' },
-];
+] as const;
+
+/** Demo logins (development only; change or remove for real deployments) */
+const DEMO_USERS = [
+  { email: 'admin@assetflow.local', password: 'Admin@1234', role: 'ADMIN', employeeCode: null },
+  { email: 'manager@assetflow.local', password: 'Manager@1234', role: 'ASSET_MANAGER', employeeCode: null },
+  { email: 'nimal.perera@assetflow.local', password: 'Employee@1234', role: 'EMPLOYEE', employeeCode: 'EMP-001' },
+] as const;
+
+// ---------- Inventory seed data ----------
 
 const CATEGORIES = [
   { name: 'Laptop', description: 'Portable computers issued to staff' },
@@ -83,19 +94,16 @@ const ASSETS: SeedAsset[] = [
 
 // ---------- Seed logic ----------
 
-async function main() {
+/** Runs on an empty database only (never duplicates inventory) */
+async function seedInventory() {
   const existingAssets = await prisma.asset.count();
   if (existingAssets > 0) {
-    console.log(`Seed skipped: ${existingAssets} assets already exist.`);
+    console.log(`Inventory skipped: ${existingAssets} assets already exist.`);
     return;
   }
 
   await prisma.$transaction(
     async (tx) => {
-      for (const role of ROLES) {
-        await tx.role.upsert({ where: { name: role.name }, update: {}, create: role });
-      }
-
       const categoryIds = new Map<string, string>();
       for (const category of CATEGORIES) {
         const saved = await tx.assetCategory.upsert({
@@ -129,7 +137,6 @@ async function main() {
           },
         });
 
-        // Every asset starts its life with a CREATED event
         await tx.assetHistory.create({
           data: {
             assetId: asset.id,
@@ -175,8 +182,56 @@ async function main() {
   );
 
   console.log(
-    `Seeded ${ROLES.length} roles, ${CATEGORIES.length} categories, ${EMPLOYEES.length} employees, ${ASSETS.length} assets.`,
+    `Seeded ${CATEGORIES.length} categories, ${EMPLOYEES.length} employees, ${ASSETS.length} assets.`,
   );
+}
+
+/**
+ * Safe to run on an existing database:
+ * - roles always get the CURRENT permission list (so permission changes apply)
+ * - demo users are created once and never overwritten (passwords you change stay changed)
+ */
+async function seedAccessControl() {
+  const roleIds = new Map<string, string>();
+  for (const role of ROLES) {
+    const permissions = ROLE_PERMISSIONS[role.name];
+    const saved = await prisma.role.upsert({
+      where: { name: role.name },
+      update: { description: role.description, permissions },
+      create: { name: role.name, description: role.description, permissions },
+    });
+    roleIds.set(role.name, saved.id);
+  }
+
+  for (const demo of DEMO_USERS) {
+    const employee = demo.employeeCode
+      ? await prisma.employee.findUnique({
+          where: { employeeCode: demo.employeeCode },
+          select: { id: true, user: { select: { id: true } } },
+        })
+      : null;
+
+    await prisma.user.upsert({
+      where: { email: demo.email },
+      update: {},
+      create: {
+        email: demo.email,
+        passwordHash: await hash(demo.password, 10),
+        roleId: roleIds.get(demo.role)!,
+        // Link only if that employee has no login yet
+        employeeId: employee && !employee.user ? employee.id : null,
+      },
+    });
+  }
+
+  console.log(`Roles: ${ROLES.map((r) => r.name).join(', ')}`);
+  console.log('Demo logins:');
+  for (const demo of DEMO_USERS) console.log(`  ${demo.role.padEnd(13)} ${demo.email} / ${demo.password}`);
+}
+
+async function main() {
+  await seedInventory(); // employees must exist before users can be linked to them
+  await seedAccessControl();
 }
 
 void main()

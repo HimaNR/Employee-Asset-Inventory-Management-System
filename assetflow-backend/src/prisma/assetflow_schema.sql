@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict BNzJEiNRd4zGOHe04eeoseo3KOzJyDwJDJjJLxdEgI6HMfwUjceXv81WZgP580J
+\restrict jf9i83ZmwPqr1QAIepuJs6qOP2knKLLewmdD0ggbGy7vzH8w6hMEIBQICgxzr3k
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
@@ -248,7 +248,9 @@ CREATE TABLE public.users (
     "roleId" uuid NOT NULL,
     "employeeId" uuid,
     "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updatedAt" timestamp(3) without time zone NOT NULL
+    "updatedAt" timestamp(3) without time zone NOT NULL,
+    "lastLoginAt" timestamp(3) without time zone,
+    "refreshTokenHash" text
 );
 
 
@@ -561,5 +563,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict BNzJEiNRd4zGOHe04eeoseo3KOzJyDwJDJjJLxdEgI6HMfwUjceXv81WZgP580J
+\unrestrict jf9i83ZmwPqr1QAIepuJs6qOP2knKLLewmdD0ggbGy7vzH8w6hMEIBQICgxzr3k
 

@@ -77,7 +77,7 @@ export class AssetsService {
 
   // ---------------- Commands ----------------
 
-  async create(dto: CreateAssetDto): Promise<AssetResponse> {
+  async create(dto: CreateAssetDto, actorId: string): Promise<AssetResponse> {
     await this.categories.assertUsable(dto.categoryId);
     await this.assertAssetCodeAvailable(dto.assetCode);
     if (dto.serialNumber) await this.assertSerialAvailable(dto.serialNumber);
@@ -107,6 +107,7 @@ export class AssetsService {
         action: 'CREATED',
         newStatus: created.status,
         description: `Asset ${created.assetCode} registered`,
+        performedById: actorId,
       });
 
       return created;
@@ -115,7 +116,7 @@ export class AssetsService {
     return toAssetResponse(asset);
   }
 
-  async update(id: string, dto: UpdateAssetDto): Promise<AssetResponse> {
+  async update(id: string, dto: UpdateAssetDto, actorId: string): Promise<AssetResponse> {
     const current = await this.findOne(id);
 
     if (dto.categoryId && dto.categoryId !== current.category.id) {
@@ -159,6 +160,7 @@ export class AssetsService {
         newStatus: updated.status,
         description: `Updated ${changedFields.join(', ')}`,
         metadata: { changedFields },
+        performedById: actorId,
       });
 
       return updated;
@@ -168,7 +170,7 @@ export class AssetsService {
   }
 
   /** FR-01 "deactivate": soft delete, the asset and its history stay in the database */
-  async deactivate(id: string): Promise<AssetResponse> {
+  async deactivate(id: string, actorId: string): Promise<AssetResponse> {
     const current = await this.findOne(id);
 
     if (!current.isActive) {
@@ -186,10 +188,10 @@ export class AssetsService {
       });
     }
 
-    return this.setActive(current, false);
+    return this.setActive(current, false, actorId);
   }
 
-  async reactivate(id: string): Promise<AssetResponse> {
+  async reactivate(id: string, actorId: string): Promise<AssetResponse> {
     const current = await this.findOne(id);
 
     if (current.isActive) {
@@ -200,14 +202,14 @@ export class AssetsService {
       });
     }
 
-    return this.setActive(current, true);
+    return this.setActive(current, true, actorId);
   }
 
   /**
    * US-06: mark an asset damaged, under repair, lost or retired (and back).
    * Only the transitions in MANUAL_STATUS_TRANSITIONS are allowed.
    */
-  async changeStatus(id: string, dto: ChangeStatusDto): Promise<AssetResponse> {
+  async changeStatus(id: string, dto: ChangeStatusDto, actorId: string): Promise<AssetResponse> {
     const current = await this.findOne(id);
 
     if (!current.isActive) {
@@ -253,6 +255,7 @@ export class AssetsService {
             status: 'RETURNED',
             returnedAt: new Date(),
             returnNotes: dto.notes ?? 'Asset reported lost',
+            returnedById: actorId,
           },
         });
       }
@@ -267,6 +270,7 @@ export class AssetsService {
           ? `Status changed to ${statusLabel(dto.status)}: ${dto.notes}`
           : `Status changed to ${statusLabel(dto.status)}`,
         metadata: dto.notes ? { notes: dto.notes } : undefined,
+        performedById: actorId,
       });
 
       return tx.asset.findUniqueOrThrow({ where: { id }, select: assetSelect });
@@ -277,7 +281,11 @@ export class AssetsService {
 
   // ---------------- Helpers ----------------
 
-  private async setActive(current: AssetResponse, isActive: boolean): Promise<AssetResponse> {
+  private async setActive(
+    current: AssetResponse,
+    isActive: boolean,
+    actorId: string,
+  ): Promise<AssetResponse> {
     const asset = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.asset.update({
         where: { id: current.id },
@@ -290,6 +298,7 @@ export class AssetsService {
         previousStatus: current.status,
         newStatus: updated.status,
         description: `Asset ${current.assetCode} ${isActive ? 'reactivated' : 'deactivated'}`,
+        performedById: actorId,
       });
       return updated;
     });

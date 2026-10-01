@@ -1,5 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { PERMISSIONS } from '../common/constants/permissions.constant';
+import { Permissions } from '../common/decorators/permissions.decorator';
 import { CreateReturnDto } from './dto/create-return.dto';
 import { ReturnsService } from './returns.service';
 
@@ -10,7 +14,8 @@ export class ReturnsController {
 
   /** Close an ACTIVE assignment; the asset becomes AVAILABLE or DAMAGED */
   @Post()
-  create(@Body() dto: CreateReturnDto) {
-    return this.returnsService.create(dto);
+  @Permissions(PERMISSIONS.RETURNS_WRITE)
+  create(@Body() dto: CreateReturnDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.returnsService.create(dto, user.id);
   }
 }

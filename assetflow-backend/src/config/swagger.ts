@@ -6,12 +6,15 @@ export function setupSwagger(app: INestApplication): void {
     .setTitle('AssetFlow API')
     .setDescription('Employee Asset & Inventory Management System – REST API')
     .setVersion('1.0')
-    .addBearerAuth() // used in Phase 7 (JWT)
+    .addBearerAuth()
+    // Every endpoint needs a token unless marked @Public()
+    .addSecurityRequirements('bearer')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('docs', app, document, {
-    jsonDocumentUrl: 'docs/json', // raw OpenAPI JSON (exported in Phase 8)
+    jsonDocumentUrl: 'docs/json',
+    swaggerOptions: { persistAuthorization: true }, // keep the token after a page refresh
   });
 }
