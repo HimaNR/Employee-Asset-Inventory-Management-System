@@ -56,3 +56,16 @@ export function formatDuration(fromIso: string, toIso?: string | null): string {
   const rest = months % 12;
   return `${years} year${years === 1 ? '' : 's'}${rest ? ` ${rest} month${rest === 1 ? '' : 's'}` : ''}`;
 }
+
+/** "just now", "5 min ago", "3 h ago", "2 days ago", then a normal date */
+export function formatRelative(iso: string): string {
+  const seconds = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+  return formatDate(iso);
+}
