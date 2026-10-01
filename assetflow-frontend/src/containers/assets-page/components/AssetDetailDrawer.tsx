@@ -1,17 +1,22 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { ArrowRightLeft, Pencil, Power, RotateCcw } from 'lucide-react';
+import { ArrowRightLeft, Pencil, Power, RotateCcw, Undo2 } from 'lucide-react';
 import Badge, { type BadgeTone } from '@/components/Badge';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import Drawer from '@/components/Drawer';
 import type { ApiError } from '@/libs/api/api-error';
-import { ASSET_CONDITION_LABEL, ASSET_STATUS_DISPLAY } from '@/libs/asset-display';
+import {
+  ASSET_CONDITION_LABEL,
+  ASSET_STATUS_DISPLAY,
+  MANUAL_STATUS_TRANSITIONS,
+  statusActionLabel,
+} from '@/libs/asset-display';
 import { CategoryIcon } from '@/libs/category-icon';
 import { cn } from '@/libs/cn';
 import { daysUntil, formatAmount, formatDate } from '@/libs/format';
-import type { Asset, AssetHistoryEntry } from '@/types/asset.types';
+import type { Asset, AssetHistoryEntry, AssetStatus } from '@/types/asset.types';
 import { AssetHistoryTimeline } from './AssetHistoryTimeline';
 
 interface AssetDetailDrawerProps {
@@ -26,11 +31,21 @@ interface AssetDetailDrawerProps {
   onLoadMoreHistory: () => void;
   onEdit: (asset: Asset) => void;
   onAssign: (asset: Asset) => void;
+  onReturn: (asset: Asset) => void;
+  onChangeStatus: (asset: Asset, target: AssetStatus) => void;
   onDeactivate: (asset: Asset) => void;
   onReactivate: (asset: Asset) => void;
   onDismissActionError: () => void;
   onClose: () => void;
 }
+
+const STATUS_DOT: Record<BadgeTone, string> = {
+  success: 'bg-emerald-500',
+  info: 'bg-sky-500',
+  warning: 'bg-amber-500',
+  danger: 'bg-red-500',
+  neutral: 'bg-ink-muted',
+};
 
 function warrantyInfo(date: string | null): { label: string; tone: BadgeTone } | null {
   if (!date) return null;
@@ -52,6 +67,8 @@ export function AssetDetailDrawer({
   onLoadMoreHistory,
   onEdit,
   onAssign,
+  onReturn,
+  onChangeStatus,
   onDeactivate,
   onReactivate,
   onDismissActionError,
@@ -83,6 +100,12 @@ export function AssetDetailDrawer({
               >
                 {!isReactivating && <RotateCcw className="h-4 w-4" aria-hidden="true" />}
                 Reactivate
+              </Button>
+            )}
+            {asset.status === 'ASSIGNED' && asset.currentAssignment && (
+              <Button variant="accent" onClick={() => onReturn(asset)}>
+                <Undo2 className="h-4 w-4" aria-hidden="true" />
+                Record return
               </Button>
             )}
             {asset.isActive && asset.status === 'AVAILABLE' && (
@@ -118,6 +141,28 @@ export function AssetDetailDrawer({
           )}
 
           <HolderCard asset={asset} />
+
+          {asset.isActive && MANUAL_STATUS_TRANSITIONS[asset.status].length > 0 && (
+            <section>
+              <h3 className="mb-3 text-sm font-medium">Change status</h3>
+              <div className="flex flex-wrap gap-2">
+                {MANUAL_STATUS_TRANSITIONS[asset.status].map((target) => (
+                  <Button
+                    key={target}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onChangeStatus(asset, target)}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn('h-2 w-2 rounded-full', STATUS_DOT[ASSET_STATUS_DISPLAY[target].tone])}
+                    />
+                    {statusActionLabel(asset.status, target)}
+                  </Button>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section>
             <h3 className="mb-3 text-sm font-medium">Details</h3>

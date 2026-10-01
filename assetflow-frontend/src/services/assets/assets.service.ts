@@ -6,6 +6,7 @@ import {
   type AssetHistoryEntry,
   type AssetQuery,
   type AssetStatus,
+  type ChangeStatusInput,
   type CreateAssetInput,
   type UpdateAssetInput,
 } from '@/types/asset.types';
@@ -24,6 +25,10 @@ export const assetsService = {
   deactivate: (id: string) => apiClient.post<Asset>(`/assets/${id}/deactivate`),
 
   reactivate: (id: string) => apiClient.post<Asset>(`/assets/${id}/reactivate`),
+
+  /** Damaged / under repair / lost / retired; the backend checks the allowed transitions */
+  changeStatus: (id: string, input: ChangeStatusInput) =>
+    apiClient.post<Asset>(`/assets/${id}/status`, input),
 
   /**
    * How many assets are in each status (reads meta.total with limit=1).

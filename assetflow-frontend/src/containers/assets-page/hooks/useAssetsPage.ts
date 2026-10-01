@@ -252,6 +252,67 @@ export function useAssetsPage() {
     reload(); // table, chips AND the open drawer refresh
   };
 
+  // ---------- return dialog (asset currently assigned) ----------
+  const [returnDialog, setReturnDialog] = useState<{
+    open: boolean;
+    key: number;
+    presetAssignment: SearchOption | null;
+  }>({ open: false, key: 0, presetAssignment: null });
+
+  const openReturn = (asset: Asset) => {
+    if (!asset.currentAssignment) return;
+    setReturnDialog((d) => ({
+      open: true,
+      key: d.key + 1,
+      presetAssignment: {
+        value: asset.currentAssignment!.id,
+        label: `${asset.assetCode} · ${asset.name} (with ${asset.currentAssignment!.employee.fullName})`,
+      },
+    }));
+  };
+  const closeReturn = () => setReturnDialog((d) => ({ ...d, open: false }));
+  const handleReturned = (assignment: Assignment) => {
+    closeReturn();
+    setNotice(`${assignment.asset.assetCode} was returned by ${assignment.employee.fullName}.`);
+    reload();
+  };
+
+  // ---------- status change dialog ----------
+  const [statusDialog, setStatusDialog] = useState<{
+    open: boolean;
+    key: number;
+    asset: Asset | null;
+    target: AssetStatus | null;
+  }>({ open: false, key: 0, asset: null, target: null });
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
+  const [statusError, setStatusError] = useState<ApiError | null>(null);
+
+  const openStatusChange = (asset: Asset, target: AssetStatus) => {
+    setStatusError(null);
+    setStatusDialog((d) => ({ open: true, key: d.key + 1, asset, target }));
+  };
+  const closeStatusChange = () => setStatusDialog((d) => ({ ...d, open: false }));
+
+  const confirmStatusChange = async (notes: string) => {
+    if (!statusDialog.asset || !statusDialog.target) return;
+    setIsChangingStatus(true);
+    setStatusError(null);
+    try {
+      const saved = await assetsService.changeStatus(statusDialog.asset.id, {
+        status: statusDialog.target,
+        notes: notes.trim() || undefined,
+      });
+      closeStatusChange();
+      setNotice(`${saved.assetCode} is now ${saved.status.replace('_', ' ').toLowerCase()}.`);
+      reload();
+    } catch (err) {
+      // e.g. 409 invalid-status-transition: shown inside the dialog
+      setStatusError(ApiError.from(err));
+    } finally {
+      setIsChangingStatus(false);
+    }
+  };
+
   // ---------- handlers (every filter change goes back to page 1) ----------
   const changeFilters = (patch: Partial<AssetFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -317,5 +378,17 @@ export function useAssetsPage() {
     openAssign,
     closeAssign,
     handleAssigned,
+    // return
+    returnDialog,
+    openReturn,
+    closeReturn,
+    handleReturned,
+    // status change
+    statusDialog,
+    isChangingStatus,
+    statusError,
+    openStatusChange,
+    closeStatusChange,
+    confirmStatusChange,
   };
 }

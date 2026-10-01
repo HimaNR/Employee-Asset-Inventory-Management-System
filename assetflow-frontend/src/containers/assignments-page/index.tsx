@@ -5,6 +5,7 @@ import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
+import ReturnAssetDialog from '@/containers/return-asset-dialog';
 import { AssignmentFilters } from './components/AssignmentFilters';
 import { AssignmentsTable } from './components/AssignmentsTable';
 import { useAssignmentsPage } from './hooks/useAssignmentsPage';
@@ -70,6 +71,7 @@ export default function AssignmentsPage() {
             isLoading={page.isLoading}
             sort={page.sort}
             onSortChange={page.changeSort}
+            onReturn={page.openReturn}
           />
           <Pagination
             meta={page.meta}
@@ -81,10 +83,18 @@ export default function AssignmentsPage() {
       )}
 
       <AssignAssetDialog
-        key={page.assignDialog.key}
+        key={`assign-${page.assignDialog.key}`}
         open={page.assignDialog.open}
         onAssigned={page.handleAssigned}
         onClose={page.closeAssign}
+      />
+
+      <ReturnAssetDialog
+        key={`return-${page.returnDialog.key}`}
+        open={page.returnDialog.open}
+        presetAssignment={page.returnDialog.presetAssignment}
+        onReturned={page.handleReturned}
+        onClose={page.closeReturn}
       />
     </div>
   );

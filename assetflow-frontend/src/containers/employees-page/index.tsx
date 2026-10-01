@@ -6,6 +6,7 @@ import Button from '@/components/Button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
+import ReturnAssetDialog from '@/containers/return-asset-dialog';
 import { EmployeeDetailDrawer } from './components/EmployeeDetailDrawer';
 import { EmployeeFilters } from './components/EmployeeFilters';
 import { EmployeeFormModal } from './components/EmployeeFormModal';
@@ -98,6 +99,7 @@ export default function EmployeesPage() {
         onLoadMorePast={page.detail.loadMorePast}
         onEdit={page.openEdit}
         onAssign={page.openAssign}
+        onReturn={page.openReturn}
         onDeactivate={page.askDeactivate}
         onReactivate={page.reactivate}
         onDismissActionError={page.dismissActionError}
@@ -105,7 +107,7 @@ export default function EmployeesPage() {
       />
 
       <EmployeeFormModal
-        key={page.form.key}
+        key={`form-${page.form.key}`}
         open={page.form.open}
         employee={page.form.employee}
         departments={page.departments}
@@ -116,11 +118,19 @@ export default function EmployeesPage() {
       />
 
       <AssignAssetDialog
-        key={page.assignDialog.key}
+        key={`assign-${page.assignDialog.key}`}
         open={page.assignDialog.open}
         presetEmployee={page.assignDialog.presetEmployee}
         onAssigned={page.handleAssigned}
         onClose={page.closeAssign}
+      />
+
+      <ReturnAssetDialog
+        key={`return-${page.returnDialog.key}`}
+        open={page.returnDialog.open}
+        presetAssignment={page.returnDialog.presetAssignment}
+        onReturned={page.handleReturned}
+        onClose={page.closeReturn}
       />
 
       <ConfirmDialog

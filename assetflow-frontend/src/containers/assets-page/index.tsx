@@ -6,10 +6,12 @@ import Button from '@/components/Button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
+import ReturnAssetDialog from '@/containers/return-asset-dialog';
 import { AssetDetailDrawer } from './components/AssetDetailDrawer';
 import { AssetFilters } from './components/AssetFilters';
 import { AssetFormModal } from './components/AssetFormModal';
 import { AssetsTable } from './components/AssetsTable';
+import { StatusChangeDialog } from './components/StatusChangeDialog';
 import { StatusSummary } from './components/StatusSummary';
 import { useAssetsPage } from './hooks/useAssetsPage';
 
@@ -106,6 +108,8 @@ export default function AssetsPage() {
         onLoadMoreHistory={page.detail.loadMoreHistory}
         onEdit={page.openEdit}
         onAssign={page.openAssign}
+        onReturn={page.openReturn}
+        onChangeStatus={page.openStatusChange}
         onDeactivate={page.askDeactivate}
         onReactivate={page.reactivate}
         onDismissActionError={page.dismissActionError}
@@ -113,7 +117,7 @@ export default function AssetsPage() {
       />
 
       <AssetFormModal
-        key={page.form.key}
+        key={`form-${page.form.key}`}
         open={page.form.open}
         asset={page.form.asset}
         categoryOptions={page.formCategoryOptions}
@@ -124,11 +128,30 @@ export default function AssetsPage() {
       />
 
       <AssignAssetDialog
-        key={page.assignDialog.key}
+        key={`assign-${page.assignDialog.key}`}
         open={page.assignDialog.open}
         presetAsset={page.assignDialog.presetAsset}
         onAssigned={page.handleAssigned}
         onClose={page.closeAssign}
+      />
+
+      <ReturnAssetDialog
+        key={`return-${page.returnDialog.key}`}
+        open={page.returnDialog.open}
+        presetAssignment={page.returnDialog.presetAssignment}
+        onReturned={page.handleReturned}
+        onClose={page.closeReturn}
+      />
+
+      <StatusChangeDialog
+        key={`status-${page.statusDialog.key}`}
+        open={page.statusDialog.open}
+        asset={page.statusDialog.asset}
+        target={page.statusDialog.target}
+        isSubmitting={page.isChangingStatus}
+        error={page.statusError}
+        onConfirm={page.confirmStatusChange}
+        onClose={page.closeStatusChange}
       />
 
       <ConfirmDialog

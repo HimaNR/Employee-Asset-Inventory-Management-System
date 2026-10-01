@@ -1,4 +1,6 @@
+import { Undo2 } from 'lucide-react';
 import Badge from '@/components/Badge';
+import Button from '@/components/Button';
 import Table, { type TableColumn, type TableSort } from '@/components/Table';
 import { CategoryIcon } from '@/libs/category-icon';
 import { cn } from '@/libs/cn';
@@ -11,9 +13,10 @@ interface AssignmentsTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
+  onReturn: (assignment: Assignment) => void;
 }
 
-const COLUMNS: TableColumn<Assignment>[] = [
+const BASE_COLUMNS: TableColumn<Assignment>[] = [
   {
     key: 'asset',
     header: 'Asset',
@@ -95,11 +98,33 @@ export function AssignmentsTable({
   isLoading,
   sort,
   onSortChange,
+  onReturn,
 }: AssignmentsTableProps) {
+  const columns: TableColumn<Assignment>[] = [
+    ...BASE_COLUMNS,
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      cell: (a) =>
+        a.status === 'ACTIVE' ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onReturn(a)}
+            aria-label={`Record return of ${a.asset.assetCode}`}
+          >
+            <Undo2 className="h-3.5 w-3.5" aria-hidden="true" />
+            Return
+          </Button>
+        ) : null,
+    },
+  ];
+
   return (
     <Table
       caption="Asset assignments"
-      columns={COLUMNS}
+      columns={columns}
       rows={assignments}
       getRowKey={(a) => a.id}
       isLoading={isLoading}
