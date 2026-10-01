@@ -9,7 +9,8 @@ import { AssetHistoryService } from '../asset-history/asset-history.service';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { paginate, toSkipTake } from '../common/utils/pagination.util';
 import { PrismaService } from '../prisma/prisma.service';
-import { assignmentSelect, type AssignmentRecord } from './assignment.select';
+import { toAssignmentResponse } from './assignment.mapper';
+import { assignmentSelect } from './assignment.select';
 import { AssignmentQueryDto } from './dto/assignment-query.dto';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { AssignmentResponse } from './interfaces/assignment-response.interface';
@@ -215,17 +216,4 @@ function nextDay(dateOnly: string): Date {
   const date = new Date(`${dateOnly}T00:00:00.000Z`);
   date.setUTCDate(date.getUTCDate() + 1);
   return date;
-}
-
-function toAssignmentResponse(record: AssignmentRecord): AssignmentResponse {
-  const { employee, ...assignment } = record;
-  return {
-    ...assignment,
-    employee: {
-      id: employee.id,
-      employeeCode: employee.employeeCode,
-      fullName: `${employee.firstName} ${employee.lastName}`,
-      status: employee.status,
-    },
-  };
 }

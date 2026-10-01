@@ -7,6 +7,11 @@ import {
 import type { Prisma } from '../generated/prisma/client';
 import { AssetHistoryService } from '../asset-history/asset-history.service';
 import { CategoriesService } from '../categories/categories.service';
+import {
+  MANUAL_STATUS_TRANSITIONS,
+  canChangeStatus,
+  statusLabel,
+} from '../common/constants/asset-status.constant';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { parseDateOnly } from '../common/utils/date.util';
 import { paginate, toSkipTake } from '../common/utils/pagination.util';
@@ -14,6 +19,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { toAssetResponse } from './asset.mapper';
 import { assetSelect } from './asset.select';
 import { AssetQueryDto } from './dto/asset-query.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 import { AssetResponse } from './interfaces/asset-response.interface';
@@ -195,6 +201,78 @@ export class AssetsService {
     }
 
     return this.setActive(current, true);
+  }
+
+  /**
+   * US-06: mark an asset damaged, under repair, lost or retired (and back).
+   * Only the transitions in MANUAL_STATUS_TRANSITIONS are allowed.
+   */
+  async changeStatus(id: string, dto: ChangeStatusDto): Promise<AssetResponse> {
+    const current = await this.findOne(id);
+
+    if (!current.isActive) {
+      throw new ConflictException({
+        type: 'asset-inactive',
+        title: 'Asset is deactivated',
+        detail: `Asset ${current.assetCode} is deactivated. Reactivate it before changing its status.`,
+      });
+    }
+    if (!canChangeStatus(current.status, dto.status)) {
+      const allowed = MANUAL_STATUS_TRANSITIONS[current.status].map(statusLabel);
+      throw new ConflictException({
+        type: 'invalid-status-transition',
+        title: 'Status change not allowed',
+        detail: `${current.assetCode} cannot go from ${statusLabel(current.status)} to ${statusLabel(
+          dto.status,
+        )}. Allowed: ${allowed.length ? allowed.join(', ') : 'none'}.`,
+        allowed: MANUAL_STATUS_TRANSITIONS[current.status],
+      });
+    }
+
+    const asset = await this.prisma.$transaction(async (tx) => {
+      // Optimistic lock: only changes if nobody changed the status meanwhile
+      const changed = await tx.asset.updateMany({
+        where: { id, status: current.status },
+        data: { status: dto.status },
+      });
+      if (changed.count === 0) {
+        throw new ConflictException({
+          type: 'status-changed-concurrently',
+          title: 'Status was changed by someone else',
+          detail: `${current.assetCode} changed while you were editing. Refresh and try again.`,
+        });
+      }
+
+      // Lost while assigned: the assignment is closed so nobody "holds" a lost asset
+      let assignmentId: string | undefined;
+      if (current.status === 'ASSIGNED' && current.currentAssignment) {
+        assignmentId = current.currentAssignment.id;
+        await tx.assetAssignment.update({
+          where: { id: assignmentId },
+          data: {
+            status: 'RETURNED',
+            returnedAt: new Date(),
+            returnNotes: dto.notes ?? 'Asset reported lost',
+          },
+        });
+      }
+
+      await this.history.record(tx, {
+        assetId: id,
+        assignmentId,
+        action: 'STATUS_CHANGED',
+        previousStatus: current.status,
+        newStatus: dto.status,
+        description: dto.notes
+          ? `Status changed to ${statusLabel(dto.status)}: ${dto.notes}`
+          : `Status changed to ${statusLabel(dto.status)}`,
+        metadata: dto.notes ? { notes: dto.notes } : undefined,
+      });
+
+      return tx.asset.findUniqueOrThrow({ where: { id }, select: assetSelect });
+    });
+
+    return toAssetResponse(asset);
   }
 
   // ---------------- Helpers ----------------
