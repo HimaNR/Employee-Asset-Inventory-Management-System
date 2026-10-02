@@ -8,6 +8,7 @@ import Pagination from '@/components/Pagination';
 import { useCan } from '@/libs/auth/use-session';
 import { PERMISSIONS } from '@/types/auth.types';
 import { CategoriesTable } from './components/CategoriesTable';
+import { CategoryDetailDrawer } from './components/CategoryDetailDrawer';
 import { CategoryFilters } from './components/CategoryFilters';
 import { CategoryFormModal } from './components/CategoryFormModal';
 import { useCategoriesPage } from './hooks/useCategoriesPage';
@@ -69,6 +70,8 @@ export default function CategoriesPage() {
             isLoading={page.isLoading}
             sort={page.sort}
             onSortChange={page.changeSort}
+            onView={page.openDetail}
+            activeCategoryId={page.selectedCategory?.id ?? null}
             onEdit={canWrite ? page.openEdit : undefined}
             onDeactivate={canWrite ? page.askDeactivate : undefined}
             onReactivate={canWrite ? page.reactivate : undefined}
@@ -82,6 +85,21 @@ export default function CategoriesPage() {
           />
         </>
       )}
+
+      <CategoryDetailDrawer
+        open={page.selectedCategory !== null}
+        category={page.selectedCategory}
+        assets={page.detail.assets}
+        total={page.detail.total}
+        counts={page.detail.counts}
+        hasMore={page.detail.hasMore}
+        isLoading={page.detail.isLoading}
+        error={page.detail.error}
+        search={page.detail.search}
+        onSearchChange={page.detail.changeSearch}
+        onLoadMore={page.detail.loadMore}
+        onClose={page.closeDetail}
+      />
 
       <CategoryFormModal
         key={page.form.key}

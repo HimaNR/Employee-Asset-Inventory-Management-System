@@ -6,6 +6,9 @@ import {
   type AssetHistoryEntry,
   type AssetQuery,
   type AssetStatus,
+  type BulkCreateAssetsInput,
+  type BulkCreateAssetsResult,
+  type NextCode,
   type ChangeStatusInput,
   type CreateAssetInput,
   type UpdateAssetInput,
@@ -18,6 +21,14 @@ export const assetsService = {
   get: (id: string, signal?: AbortSignal) => apiClient.get<Asset>(`/assets/${id}`, { signal }),
 
   create: (input: CreateAssetInput) => apiClient.post<Asset>('/assets', input),
+
+  /** Register many identical assets at once (e.g. 10 keyboards) */
+  bulkCreate: (input: BulkCreateAssetsInput) =>
+    apiClient.post<BulkCreateAssetsResult>('/assets/bulk', input),
+
+  /** Next free code for a prefix, for the bulk preview */
+  nextCode: (prefix: string, signal?: AbortSignal) =>
+    apiClient.get<NextCode>('/assets/next-code', { query: { prefix }, signal }),
 
   update: (id: string, input: UpdateAssetInput) =>
     apiClient.patch<Asset>(`/assets/${id}`, input),
@@ -35,7 +46,7 @@ export const assetsService = {
    * Phase 6 will replace this with the dashboard summary endpoint.
    */
   async statusCounts(
-    filter: Pick<AssetQuery, 'isActive'>,
+    filter: Pick<AssetQuery, 'isActive' | 'categoryId'>,
     signal?: AbortSignal,
   ): Promise<Record<AssetStatus, number>> {
     const totals = await Promise.all(

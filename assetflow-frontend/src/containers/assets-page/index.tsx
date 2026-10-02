@@ -1,11 +1,12 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { Layers, Plus } from 'lucide-react';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
+import BulkAssetDialog from '@/containers/bulk-asset-dialog';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
 import { useCan } from '@/libs/auth/use-session';
 import { PERMISSIONS } from '@/types/auth.types';
@@ -31,7 +32,7 @@ export default function AssetsPage() {
       {/* Headline + main action */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-end gap-4">
-          <p className="text-6xl font-light tracking-tight tabular-nums">{page.meta.total}</p>
+          <p className="text-5xl font-light tracking-tight tabular-nums sm:text-6xl">{page.meta.total}</p>
           <p className="pb-2 text-sm leading-tight text-ink-muted">
             {page.canClearFilters ? (
               <>
@@ -49,10 +50,16 @@ export default function AssetsPage() {
           </p>
         </div>
         {canWrite && (
-          <Button onClick={page.openCreate}>
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            New asset
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={page.openBulk}>
+              <Layers className="h-4 w-4" aria-hidden="true" />
+              Bulk add
+            </Button>
+            <Button onClick={page.openCreate}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              New asset
+            </Button>
+          </div>
         )}
       </div>
 
@@ -135,6 +142,14 @@ export default function AssetsPage() {
         serverError={page.saveError}
         onSubmit={page.saveAsset}
         onClose={page.closeForm}
+      />
+
+      <BulkAssetDialog
+        key={`bulk-${page.bulkDialog.key}`}
+        open={page.bulkDialog.open}
+        categoryOptions={page.formCategoryOptions}
+        onCreated={page.handleBulkCreated}
+        onClose={page.closeBulk}
       />
 
       <AssignAssetDialog
