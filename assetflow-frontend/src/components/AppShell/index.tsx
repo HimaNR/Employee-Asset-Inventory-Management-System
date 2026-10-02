@@ -90,7 +90,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
           onMenuClick={() => setIsSidebarOpen(true)}
           onLogout={() => void logout()}
         />
-        <main className="w-full max-w-7xl flex-1 px-4 pt-2 pb-10 sm:px-8">{children}</main>
+        {/* Wide screens: content grows up to 1600px and stays centred */}
+        <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pt-2 pb-10 sm:px-6 lg:px-8">
+          {children}
+        </main>
       </div>
     </div>
   );

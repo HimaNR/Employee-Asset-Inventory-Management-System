@@ -21,7 +21,11 @@ export function StatusSummary({ counts, selected, onSelect }: StatusSummaryProps
   const total = counts ? ASSET_STATUSES.reduce((sum, status) => sum + counts[status], 0) : null;
 
   return (
-    <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-2">
+    <div
+      role="group"
+      aria-label="Filter by status"
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+    >
       <Chip label="All" count={total} isSelected={selected === ''} onClick={() => onSelect('')} />
       {ASSET_STATUSES.map((status) => {
         const display = ASSET_STATUS_DISPLAY[status];
@@ -59,7 +63,7 @@ function Chip({
       onClick={onClick}
       aria-pressed={isSelected}
       className={cn(
-        'group inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]',
+        'group inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]',
         isSelected
           ? 'border-tag bg-tag text-tag-ink shadow-[0_8px_20px_-8px_rgba(246,207,69,0.8)]'
           : 'border-line bg-surface text-ink',

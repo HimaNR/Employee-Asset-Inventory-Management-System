@@ -12,6 +12,9 @@ interface CategoriesTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
+  /** Click a row to see every asset in the category */
+  onView: (category: Category) => void;
+  activeCategoryId: string | null;
   /** Leave the actions out (no permission) and the Actions column disappears */
   onEdit?: (category: Category) => void;
   onDeactivate?: (category: Category) => void;
@@ -24,6 +27,8 @@ export function CategoriesTable({
   isLoading,
   sort,
   onSortChange,
+  onView,
+  activeCategoryId,
   onEdit,
   onDeactivate,
   onReactivate,
@@ -141,6 +146,8 @@ export function CategoriesTable({
       isLoading={isLoading}
       sort={sort}
       onSortChange={onSortChange}
+      onRowClick={onView}
+      activeRowKey={activeCategoryId}
       emptyMessage="No categories match your filters."
     />
   );

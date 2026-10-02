@@ -17,6 +17,7 @@ import { PERMISSIONS } from '../common/constants/permissions.constant';
 import { Permissions } from '../common/decorators/permissions.decorator';
 import { AssetsService } from './assets.service';
 import { AssetQueryDto } from './dto/asset-query.dto';
+import { BulkCreateAssetsDto, NextCodeQueryDto } from './dto/bulk-create-assets.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
@@ -34,6 +35,13 @@ export class AssetsController {
   }
 
   /** One asset with its category and current assignment */
+  /** Next free code for a prefix (preview for bulk registration). Declared before ':id'. */
+  @Get('next-code')
+  @Permissions(PERMISSIONS.ASSETS_WRITE)
+  nextCode(@Query() query: NextCodeQueryDto) {
+    return this.assetsService.nextCode(query.prefix);
+  }
+
   @Get(':id')
   @Permissions(PERMISSIONS.ASSETS_READ)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
@@ -41,6 +49,13 @@ export class AssetsController {
   }
 
   /** Register a new asset (status starts as AVAILABLE) */
+  /** Register up to 100 identical assets at once (e.g. 10 keyboards) */
+  @Post('bulk')
+  @Permissions(PERMISSIONS.ASSETS_WRITE)
+  bulkCreate(@Body() dto: BulkCreateAssetsDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.assetsService.bulkCreate(dto, user.id);
+  }
+
   @Post()
   @Permissions(PERMISSIONS.ASSETS_WRITE)
   create(@Body() dto: CreateAssetDto, @CurrentUser() user: AuthenticatedUser) {

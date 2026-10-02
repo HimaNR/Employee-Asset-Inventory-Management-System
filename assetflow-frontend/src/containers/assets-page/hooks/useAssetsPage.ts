@@ -8,7 +8,12 @@ import { categoriesService } from '@/services/categories/categories.service';
 import { employeesService } from '@/services/employees/employees.service';
 import type { PaginationMeta } from '@/types/api.types';
 import type { SearchOption } from '@/components/SearchSelect';
-import type { Asset, AssetQuery, AssetStatus } from '@/types/asset.types';
+import type {
+  Asset,
+  AssetQuery,
+  AssetStatus,
+  BulkCreateAssetsResult,
+} from '@/types/asset.types';
 import type { Assignment } from '@/types/assignment.types';
 import type { Category } from '@/types/category.types';
 import {
@@ -313,6 +318,20 @@ export function useAssetsPage() {
     }
   };
 
+  // ---------- bulk add ----------
+  const [bulkDialog, setBulkDialog] = useState({ open: false, key: 0 });
+  const openBulk = () => setBulkDialog((d) => ({ open: true, key: d.key + 1 }));
+  const closeBulk = () => setBulkDialog((d) => ({ ...d, open: false }));
+  const handleBulkCreated = (result: BulkCreateAssetsResult) => {
+    closeBulk();
+    setNotice(
+      result.count === 1
+        ? `${result.firstCode} was registered.`
+        : `${result.count} assets were registered (${result.firstCode} to ${result.lastCode}).`,
+    );
+    reload();
+  };
+
   // ---------- handlers (every filter change goes back to page 1) ----------
   const changeFilters = (patch: Partial<AssetFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -373,6 +392,11 @@ export function useAssetsPage() {
     confirmDeactivate,
     isReactivating,
     reactivate,
+    // bulk add
+    bulkDialog,
+    openBulk,
+    closeBulk,
+    handleBulkCreated,
     // assign
     assignDialog,
     openAssign,

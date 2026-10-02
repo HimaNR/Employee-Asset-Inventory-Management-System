@@ -34,8 +34,8 @@ export function AssetFilters({
 }: AssetFiltersProps) {
   return (
     <div className="space-y-3">
-      {/* Row 2: dropdown filters */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Row 2: dropdown filters (2 per row on phones, one line on wide screens) */}
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
         <Select
           variant="filter"
           label="Category"
@@ -44,7 +44,7 @@ export function AssetFilters({
           options={categoryOptions}
           value={filters.categoryId}
           onChange={(event) => onChange({ categoryId: event.target.value })}
-          className="w-44"
+          className="w-full sm:w-44"
         />
         <Select
           variant="filter"
@@ -54,7 +54,7 @@ export function AssetFilters({
           options={employeeOptions}
           value={filters.employeeId}
           onChange={(event) => onChange({ employeeId: event.target.value })}
-          className="w-60"
+          className="w-full sm:w-60"
         />
         <Select
           variant="filter"
@@ -66,7 +66,7 @@ export function AssetFilters({
           onChange={(event) =>
             onChange({ condition: event.target.value as Filters['condition'] })
           }
-          className="w-44"
+          className="w-full sm:w-44"
         />
         <Select
           variant="filter"
@@ -79,10 +79,10 @@ export function AssetFilters({
           onChange={(event) =>
             onChange({ activity: event.target.value as Filters['activity'] })
           }
-          className="w-52"
+          className="w-full sm:w-52"
         />
         {canClear && (
-          <Button variant="ghost" size="sm" onClick={onClear}>
+          <Button variant="ghost" size="sm" onClick={onClear} className="col-span-2 sm:col-span-1">
             <X className="h-4 w-4" aria-hidden="true" />
             Clear filters
           </Button>

@@ -19,6 +19,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { toAssetResponse } from './asset.mapper';
 import { assetSelect } from './asset.select';
 import { AssetQueryDto } from './dto/asset-query.dto';
+import { BulkCreateAssetsDto } from './dto/bulk-create-assets.dto';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
@@ -114,6 +115,105 @@ export class AssetsService {
     });
 
     return toAssetResponse(asset);
+  }
+
+  // ---------------- Bulk registration ----------------
+
+  /** Next free number for a prefix: KEY-0007 exists -> next is 8 */
+  async nextCode(prefix: string): Promise<{ prefix: string; nextNumber: number; nextCode: string }> {
+    const nextNumber = (await this.highestNumber(prefix)) + 1;
+    return { prefix, nextNumber, nextCode: formatCode(prefix, nextNumber) };
+  }
+
+  /**
+   * Registers `quantity` identical assets in ONE transaction.
+   * Codes continue after the highest existing number for the prefix.
+   */
+  async bulkCreate(dto: BulkCreateAssetsDto, actorId: string) {
+    await this.categories.assertUsable(dto.categoryId);
+    assertWarrantyAfterPurchase(dto.purchaseDate, dto.warrantyExpiryDate);
+
+    const serials = dto.serialNumbers ?? [];
+    if (serials.length > 0) {
+      if (serials.length !== dto.quantity) {
+        throw new BadRequestException({
+          type: 'serial-count-mismatch',
+          title: 'Serial numbers do not match the quantity',
+          detail: `You entered ${serials.length} serial numbers for ${dto.quantity} assets. Enter one per asset, or none.`,
+        });
+      }
+      const seen = new Set<string>();
+      const repeated = serials.filter((serial) => {
+        const key = serial.toLowerCase();
+        if (seen.has(key)) return true;
+        seen.add(key);
+        return false;
+      });
+      if (repeated.length > 0) {
+        throw new BadRequestException({
+          type: 'duplicate-serial-in-batch',
+          title: 'Repeated serial numbers',
+          detail: `These serial numbers appear more than once: ${[...new Set(repeated)].join(', ')}.`,
+        });
+      }
+      const taken = await this.prisma.asset.findMany({
+        where: { OR: serials.map((serial) => ({ serialNumber: { equals: serial, mode: 'insensitive' as const } })) },
+        select: { serialNumber: true, assetCode: true },
+      });
+      if (taken.length > 0) {
+        throw new ConflictException({
+          type: 'serial-number-taken',
+          title: 'Serial number already registered',
+          detail: `Already used: ${taken.map((a) => `${a.serialNumber} (${a.assetCode})`).join(', ')}.`,
+        });
+      }
+    }
+
+    const start = (await this.highestNumber(dto.codePrefix)) + 1;
+    const codes = Array.from({ length: dto.quantity }, (_, i) => formatCode(dto.codePrefix, start + i));
+
+    // All assets + their CREATED history rows, or nothing at all
+    const created = await this.prisma.$transaction(
+      async (tx) => {
+        const assets = [];
+        for (const [index, assetCode] of codes.entries()) {
+          const asset = await tx.asset.create({
+            data: {
+              assetCode,
+              name: dto.name,
+              serialNumber: serials[index] ?? null,
+              brand: dto.brand,
+              model: dto.model,
+              categoryId: dto.categoryId,
+              condition: dto.condition,
+              purchaseDate: parseDateOnly(dto.purchaseDate),
+              purchasePrice: dto.purchasePrice,
+              warrantyExpiryDate: parseDateOnly(dto.warrantyExpiryDate),
+              notes: dto.notes,
+            },
+            select: assetSelect,
+          });
+          await this.history.record(tx, {
+            assetId: asset.id,
+            action: 'CREATED',
+            newStatus: asset.status,
+            description: `Asset ${assetCode} registered (bulk ${index + 1} of ${codes.length})`,
+            metadata: { bulk: true, batchFirstCode: codes[0], batchLastCode: codes[codes.length - 1] },
+            performedById: actorId,
+          });
+          assets.push(asset);
+        }
+        return assets;
+      },
+      { timeout: 30_000 },
+    );
+
+    return {
+      count: created.length,
+      firstCode: codes[0],
+      lastCode: codes[codes.length - 1],
+      assets: created.map(toAssetResponse),
+    };
   }
 
   async update(id: string, dto: UpdateAssetDto, actorId: string): Promise<AssetResponse> {
@@ -305,6 +405,19 @@ export class AssetsService {
     return toAssetResponse(asset);
   }
 
+  /** Highest number already used with this prefix (KEY-0012 -> 12), 0 if none */
+  private async highestNumber(prefix: string): Promise<number> {
+    const rows = await this.prisma.asset.findMany({
+      where: { assetCode: { startsWith: `${prefix}-` } },
+      select: { assetCode: true },
+    });
+    const pattern = new RegExp(`^${prefix}-(\\d+)$`);
+    return rows.reduce((max, { assetCode }) => {
+      const match = pattern.exec(assetCode);
+      return match ? Math.max(max, Number(match[1])) : max;
+    }, 0);
+  }
+
   private async assertAssetCodeAvailable(assetCode: string): Promise<void> {
     const existing = await this.prisma.asset.findUnique({
       where: { assetCode },
@@ -339,6 +452,11 @@ export class AssetsService {
 }
 
 // ---------------- Pure functions (easy to unit-test) ----------------
+
+/** KEY + 7 -> "KEY-0007" (more digits when needed: KEY-12345) */
+function formatCode(prefix: string, n: number): string {
+  return `${prefix}-${String(n).padStart(4, '0')}`;
+}
 
 function assetNotFound(id: string): NotFoundException {
   return new NotFoundException({

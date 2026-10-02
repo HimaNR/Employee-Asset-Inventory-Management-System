@@ -85,7 +85,7 @@ export default function Modal({
       {children && <div className="px-6 py-4">{children}</div>}
 
       {footer && (
-        <div className="flex justify-end gap-2 px-6 pt-2 pb-6">
+        <div className="flex flex-wrap justify-end gap-2 px-6 pt-2 pb-6">
           {footer}
         </div>
       )}

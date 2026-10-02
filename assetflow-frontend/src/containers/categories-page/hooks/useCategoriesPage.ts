@@ -7,6 +7,7 @@ import type { PaginationMeta } from '@/types/api.types';
 import type { Category, CategoryQuery, CategorySortField } from '@/types/category.types';
 import type { StatusFilter } from '../components/CategoryFilters';
 import { toCategoryInput, type CategoryFormValues } from '../utils/category-form';
+import { useCategoryDetail } from './useCategoryDetail';
 
 const EMPTY_META: PaginationMeta = { page: 1, limit: 10, total: 0, totalPages: 1 };
 
@@ -156,7 +157,16 @@ export function useCategoriesPage() {
     }
   };
 
+  // ---------- detail drawer: all assets of the clicked category ----------
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const detail = useCategoryDetail(selectedCategory?.id ?? null, reloadKey);
+
   return {
+    // detail drawer
+    selectedCategory,
+    openDetail: setSelectedCategory,
+    closeDetail: () => setSelectedCategory(null),
+    detail,
     // list
     categories,
     meta,

@@ -20,7 +20,7 @@ export default function Header({ title, user, onMenuClick, onLogout }: HeaderPro
   const displayName = user.employee?.fullName ?? user.email;
 
   return (
-    <header className="sticky top-0 z-20 flex h-20 items-center gap-3 bg-canvas/70 px-4 backdrop-blur-md sm:px-8">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 bg-canvas/70 px-4 backdrop-blur-md sm:h-20 sm:px-6 lg:px-8">
       <button
         type="button"
         onClick={onMenuClick}
@@ -30,9 +30,9 @@ export default function Header({ title, user, onMenuClick, onLogout }: HeaderPro
         <Menu className="h-[18px] w-[18px]" aria-hidden="true" />
       </button>
 
-      <h1 className="text-xl font-medium tracking-tight">{title}</h1>
+      <h1 className="min-w-0 truncate text-lg font-medium tracking-tight sm:text-xl">{title}</h1>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex shrink-0 items-center gap-2">
         <ThemeToggle />
         <div className="flex items-center gap-2.5 rounded-full border border-line bg-surface py-1 pr-1 pl-1 transition hover:shadow-md">
           <span
