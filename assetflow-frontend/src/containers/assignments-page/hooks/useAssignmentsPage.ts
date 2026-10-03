@@ -110,6 +110,9 @@ export function useAssignmentsPage() {
     reload();
   };
 
+  // ---------- detail panel ----------
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+
   // ---------- return dialog ----------
   const [returnDialog, setReturnDialog] = useState<{
     open: boolean;
@@ -129,6 +132,7 @@ export function useAssignmentsPage() {
   const closeReturn = () => setReturnDialog((d) => ({ ...d, open: false }));
   const handleReturned = (assignment: Assignment) => {
     closeReturn();
+    setSelectedAssignment(null);
     setNotice(`${assignment.asset.assetCode} was returned by ${assignment.employee.fullName}.`);
     reload();
   };
@@ -173,6 +177,9 @@ export function useAssignmentsPage() {
     openAssign,
     closeAssign,
     handleAssigned,
+    selectedAssignment,
+    openDetail: setSelectedAssignment,
+    closeDetail: () => setSelectedAssignment(null),
     returnDialog,
     openReturn,
     closeReturn,

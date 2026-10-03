@@ -166,7 +166,7 @@ export default function SearchSelect({
             aria-label={label}
             // Keep focus in the input while clicking an option
             onMouseDown={(event) => event.preventDefault()}
-            className="absolute top-full right-0 left-0 z-50 mt-2 max-h-64 overflow-y-auto rounded-2xl border border-line bg-surface p-1.5 shadow-xl shadow-black/10"
+            className="absolute top-full right-0 left-0 z-50 mt-2 max-h-64 overflow-y-auto rounded-2xl border border-line bg-surface p-1.5 shadow-xl shadow-black/10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {isLoading && options.length === 0 && (
               <li className="flex items-center gap-2 px-3 py-2.5 text-sm text-ink-muted">

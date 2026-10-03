@@ -1,14 +1,16 @@
 'use client';
 
-import type { FormEvent } from 'react';
+import { useId, type FormEvent } from 'react';
 import { Layers } from 'lucide-react';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import Select, { type SelectOption } from '@/components/Select';
+import SuggestionList from '@/components/SuggestionList';
 import Textarea from '@/components/Textarea';
 import { ASSET_CONDITION_LABEL } from '@/libs/asset-display';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { ASSET_CONDITIONS, type AssetCondition, type BulkCreateAssetsResult } from '@/types/asset.types';
 import { useBulkAssetDialog } from './hooks/useBulkAssetDialog';
 import {
@@ -43,6 +45,7 @@ export default function BulkAssetDialog({
   const quantity = Number(values.quantity);
   const serialCount = parseSerials(values.serialNumbers).length;
   const formId = 'bulk-asset-form';
+  const listId = useId();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -126,6 +129,8 @@ export default function BulkAssetDialog({
             label="Name"
             required
             value={values.name}
+            list={`${listId}-name`}
+            autoComplete="off"
             onChange={(event) => dialog.update('name', event.target.value)}
             error={errors.name}
             placeholder="e.g. Logitech MX Keys S"
@@ -134,11 +139,15 @@ export default function BulkAssetDialog({
           <Input
             label="Brand"
             value={values.brand}
+            list={`${listId}-brand`}
+            autoComplete="off"
             onChange={(event) => dialog.update('brand', event.target.value)}
           />
           <Input
             label="Model"
             value={values.model}
+            list={`${listId}-model`}
+            autoComplete="off"
             onChange={(event) => dialog.update('model', event.target.value)}
           />
           <Select
@@ -194,10 +203,12 @@ export default function BulkAssetDialog({
 
         {dialog.generalError && (
           <Banner tone="error">
-            <span className="font-medium">{dialog.generalError.title}.</span>{' '}
-            {dialog.generalError.detail}
+            {friendlyMessage(dialog.generalError)}
           </Banner>
         )}
+        <SuggestionList id={`${listId}-name`} values={dialog.suggestions.names} />
+        <SuggestionList id={`${listId}-brand`} values={dialog.suggestions.brands} />
+        <SuggestionList id={`${listId}-model`} values={dialog.suggestions.models} />
       </form>
     </Modal>
   );

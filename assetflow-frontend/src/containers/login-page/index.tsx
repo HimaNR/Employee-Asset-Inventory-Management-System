@@ -9,15 +9,9 @@ import Input from '@/components/Input';
 import ThemeToggle from '@/components/ThemeToggle';
 import { homePathFor } from '@/config/navigation.config';
 import { ApiError } from '@/libs/api/api-error';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { clearSession, setSession } from '@/libs/session-storage';
 import { authService } from '@/services/auth/auth.service';
-
-/** Seeded development accounts (see src/prisma/seed.ts) */
-const DEMO_ACCOUNTS = [
-  { label: 'Administrator', email: 'admin@assetflow.local', password: 'Admin@1234' },
-  { label: 'Asset manager', email: 'manager@assetflow.local', password: 'Manager@1234' },
-  { label: 'Employee', email: 'nimal.perera@assetflow.local', password: 'Employee@1234' },
-];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,7 +49,7 @@ export default function LoginPage() {
     } catch (err) {
       const apiError = ApiError.from(err);
       // 401 = wrong email/password (the server never says which one)
-      setError(apiError.status === 401 ? 'Invalid email or password.' : apiError.detail);
+      setError(apiError.status === 401 ? 'Invalid email or password.' : friendlyMessage(apiError));
       setIsSubmitting(false);
     }
   };
@@ -97,28 +91,6 @@ export default function LoginPage() {
               Sign in
             </Button>
           </form>
-        </section>
-
-        {/* Development helper: one click fills a demo account */}
-        <section className="rounded-3xl border border-dashed border-line bg-surface/50 p-4">
-          <p className="px-1 pb-2 text-xs text-ink-muted">Demo accounts (development)</p>
-          <div className="grid gap-2">
-            {DEMO_ACCOUNTS.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                onClick={() => {
-                  setEmail(account.email);
-                  setPassword(account.password);
-                  setError(null);
-                }}
-                className="flex items-center justify-between rounded-2xl bg-surface-2/70 px-4 py-2.5 text-left text-sm transition hover:-translate-y-0.5 hover:bg-tag/20"
-              >
-                <span className="font-medium">{account.label}</span>
-                <span className="truncate pl-3 font-mono text-[11px] text-ink-muted">{account.email}</span>
-              </button>
-            ))}
-          </div>
         </section>
       </div>
     </main>

@@ -35,6 +35,13 @@ export class AssetsController {
   }
 
   /** One asset with its category and current assignment */
+  /** Previously used names/brands/models for form suggestions. Declared before ':id'. */
+  @Get('suggestions')
+  @Permissions(PERMISSIONS.ASSETS_READ)
+  suggestions() {
+    return this.assetsService.suggestions();
+  }
+
   /** Next free code for a prefix (preview for bulk registration). Declared before ':id'. */
   @Get('next-code')
   @Permissions(PERMISSIONS.ASSETS_WRITE)

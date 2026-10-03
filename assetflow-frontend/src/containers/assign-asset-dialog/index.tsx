@@ -7,6 +7,7 @@ import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import SearchSelect, { type SearchOption } from '@/components/SearchSelect';
 import Textarea from '@/components/Textarea';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { Assignment } from '@/types/assignment.types';
 import { useAssignAssetDialog } from './hooks/useAssignAssetDialog';
 import { nowLocal } from './utils/assign-form';
@@ -98,8 +99,7 @@ export default function AssignAssetDialog({
 
         {dialog.generalError && (
           <Banner tone="error">
-            <span className="font-medium">{dialog.generalError.title}.</span>{' '}
-            {dialog.generalError.detail}
+            {friendlyMessage(dialog.generalError)}
           </Banner>
         )}
       </form>

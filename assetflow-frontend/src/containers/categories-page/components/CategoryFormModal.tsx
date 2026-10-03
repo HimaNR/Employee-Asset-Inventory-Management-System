@@ -6,6 +6,7 @@ import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import Textarea from '@/components/Textarea';
 import type { ApiError } from '@/libs/api/api-error';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { Category } from '@/types/category.types';
 import {
   mapServerError,
@@ -105,15 +106,7 @@ export function CategoryFormModal({
 
         {generalError && (
           <div role="alert" className="rounded-2xl bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
-            <p className="font-medium">{generalError.title}</p>
-            <p className="mt-0.5">{generalError.detail}</p>
-            {generalError.errors.length > 0 && (
-              <ul className="mt-2 list-disc pl-5">
-                {generalError.errors.map((message) => (
-                  <li key={message}>{message}</li>
-                ))}
-              </ul>
-            )}
+            <p>{friendlyMessage(generalError)}</p>
           </div>
         )}
       </form>

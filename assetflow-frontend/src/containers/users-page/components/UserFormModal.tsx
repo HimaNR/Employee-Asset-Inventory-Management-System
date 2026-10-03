@@ -8,6 +8,7 @@ import Modal from '@/components/Modal';
 import SearchSelect from '@/components/SearchSelect';
 import Select, { type SelectOption } from '@/components/Select';
 import type { ApiError } from '@/libs/api/api-error';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { employeesService } from '@/services/employees/employees.service';
 import type { User, UserStatus } from '@/types/user.types';
 import {
@@ -152,7 +153,7 @@ export function UserFormModal({
         />
         {generalError && (
           <Banner tone="error">
-            <span className="font-medium">{generalError.title}.</span> {generalError.detail}
+            {friendlyMessage(generalError)}
           </Banner>
         )}
       </form>

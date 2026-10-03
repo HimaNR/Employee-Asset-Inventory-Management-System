@@ -6,6 +6,7 @@ import Button from '@/components/Button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import { useCan } from '@/libs/auth/use-session';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { PERMISSIONS } from '@/types/auth.types';
 import { CategoriesTable } from './components/CategoriesTable';
 import { CategoryDetailDrawer } from './components/CategoryDetailDrawer';
@@ -51,14 +52,13 @@ export default function CategoriesPage() {
       )}
       {page.actionError && (
         <Banner tone="error" onDismiss={page.dismissActionError}>
-          {page.actionError.title}: {page.actionError.detail}
+          {friendlyMessage(page.actionError)}
         </Banner>
       )}
 
       {page.listError ? (
         <div className="rounded-3xl bg-red-500/10 p-6 text-sm text-red-700 dark:text-red-300">
-          <p className="font-medium">{page.listError.title}</p>
-          <p className="mt-1">{page.listError.detail}</p>
+          <p>{friendlyMessage(page.listError)}</p>
           <Button variant="secondary" size="sm" className="mt-4" onClick={page.reload}>
             Try again
           </Button>

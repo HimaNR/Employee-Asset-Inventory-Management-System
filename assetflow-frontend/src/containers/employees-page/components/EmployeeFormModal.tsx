@@ -5,6 +5,7 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import type { ApiError } from '@/libs/api/api-error';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { Employee } from '@/types/employee.types';
 import {
   mapServerError,
@@ -20,6 +21,7 @@ interface EmployeeFormModalProps {
   /** null = add a new employee, otherwise edit this one */
   employee: Employee | null;
   departments: string[];
+  designations: string[];
   isSubmitting: boolean;
   serverError: ApiError | null;
   onSubmit: (values: EmployeeFormValues) => void;
@@ -31,6 +33,7 @@ export function EmployeeFormModal({
   open,
   employee,
   departments,
+  designations,
   isSubmitting,
   serverError,
   onSubmit,
@@ -38,6 +41,7 @@ export function EmployeeFormModal({
 }: EmployeeFormModalProps) {
   const isEdit = employee !== null;
   const departmentListId = useId();
+  const designationListId = useId();
   const [values, setValues] = useState<EmployeeFormValues>(() => toFormValues(employee));
   const [clientErrors, setClientErrors] = useState<EmployeeFormErrors>({});
   const [dismissedError, setDismissedError] = useState<ApiError | null>(null);
@@ -139,18 +143,25 @@ export function EmployeeFormModal({
         <Input
           label="Designation"
           value={values.designation}
+          list={designationListId}
+          autoComplete="off"
           onChange={(event) => update('designation', event.target.value)}
           error={errors.designation}
           placeholder="e.g. QA Engineer"
         />
+
+        <datalist id={designationListId}>
+          {designations.map((designation) => (
+            <option key={designation} value={designation} />
+          ))}
+        </datalist>
 
         {generalError && (
           <div
             role="alert"
             className="rounded-2xl bg-red-500/10 p-4 text-sm text-red-700 sm:col-span-2 dark:text-red-300"
           >
-            <p className="font-medium">{generalError.title}</p>
-            <p className="mt-0.5">{generalError.detail}</p>
+            <p>{friendlyMessage(generalError)}</p>
           </div>
         )}
       </form>

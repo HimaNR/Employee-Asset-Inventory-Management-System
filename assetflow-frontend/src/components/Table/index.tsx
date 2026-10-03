@@ -41,8 +41,9 @@ function shouldIgnoreClick(event: MouseEvent<HTMLElement>): boolean {
 
 /**
  * Responsive data table:
- * - md and up: a classic table with sortable headers
- * - phones: every row becomes a card ("label: value" lines) with a sort picker on top
+ * - lg and up (laptops, desktops): a classic table with sortable headers
+ * - phones and tablets: every row becomes a card ("label: value" lines) with a sort picker;
+ *   tablets show two cards per row
  */
 export default function Table<T>({
   columns,
@@ -74,7 +75,7 @@ export default function Table<T>({
   return (
     <div>
       {/* ---------------- Desktop / tablet: table ---------------- */}
-      <div className="hidden overflow-x-auto rounded-3xl border border-line/70 bg-surface/85 backdrop-blur-sm md:block">
+      <div className="hidden overflow-x-auto rounded-3xl border border-line/70 bg-surface/85 backdrop-blur-sm lg:block">
         <table className="w-full text-left text-sm">
           {caption && <caption className="sr-only">{caption}</caption>}
 
@@ -181,10 +182,10 @@ export default function Table<T>({
         </table>
       </div>
 
-      {/* ---------------- Phones: cards ---------------- */}
-      <div className="space-y-3 md:hidden">
+      {/* ---------------- Phones and tablets: cards ---------------- */}
+      <div className="space-y-3 lg:hidden">
         {onSortChange && sortableColumns.length > 0 && rows.length > 0 && (
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm md:max-w-md">
             <label className="flex flex-1 items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 shadow-sm">
               <span className="text-ink-muted">Sort</span>
               <select
@@ -222,15 +223,17 @@ export default function Table<T>({
         )}
 
         {isFirstLoad ? (
-          Array.from({ length: 3 }, (_, i) => (
-            <div key={i} className="h-36 animate-pulse rounded-3xl bg-surface-2" aria-hidden="true" />
-          ))
+          <div className="grid gap-3 md:grid-cols-2" aria-hidden="true">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="h-36 animate-pulse rounded-3xl bg-surface-2" />
+            ))}
+          </div>
         ) : rows.length === 0 ? (
           <p className="rounded-3xl border border-line/70 bg-surface/85 px-5 py-12 text-center text-sm text-ink-muted">
             {emptyMessage}
           </p>
         ) : (
-          <ul aria-label={caption} className={cn('space-y-3', isLoading && 'opacity-50')}>
+          <ul aria-label={caption} className={cn('grid gap-3 md:grid-cols-2', isLoading && 'opacity-50')}>
             {rows.map((row) => {
               const rowKey = getRowKey(row);
               return (

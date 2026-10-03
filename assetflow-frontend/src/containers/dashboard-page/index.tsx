@@ -2,6 +2,7 @@
 
 import Banner from '@/components/Banner';
 import { greetingNameFor, useSession } from '@/libs/auth/use-session';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { ApiStatusCard } from './components/ApiStatusCard';
 import { AttentionCard } from './components/AttentionCard';
 import { CategoryBreakdownCard } from './components/CategoryBreakdownCard';
@@ -27,7 +28,7 @@ export default function DashboardPage() {
 
       {page.summaryError && !summary && (
         <Banner tone="error">
-          {page.summaryError.title}: {page.summaryError.detail}
+          {friendlyMessage(page.summaryError)}
         </Banner>
       )}
 

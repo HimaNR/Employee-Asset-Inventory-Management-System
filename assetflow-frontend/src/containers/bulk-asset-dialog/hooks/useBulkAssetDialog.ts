@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ApiError, isAbortError } from '@/libs/api/api-error';
 import { useDebouncedValue } from '@/libs/use-debounced-value';
 import { assetsService } from '@/services/assets/assets.service';
-import type { BulkCreateAssetsResult } from '@/types/asset.types';
+import type { AssetSuggestions, BulkCreateAssetsResult } from '@/types/asset.types';
 import {
   EMPTY_BULK_FORM,
   mapServerError,
@@ -29,6 +29,19 @@ export function useBulkAssetDialog(onCreated: (result: BulkCreateAssetsResult) =
     setClientErrors((current) => ({ ...current, [field]: undefined }));
     setServerError(null);
   };
+
+  // ---- Previously used names/brands/models as typing suggestions ----
+  const [suggestions, setSuggestions] = useState<AssetSuggestions>({ names: [], brands: [], models: [] });
+  useEffect(() => {
+    const controller = new AbortController();
+    assetsService
+      .suggestions(controller.signal)
+      .then(setSuggestions)
+      .catch(() => {
+        // Not critical
+      });
+    return () => controller.abort();
+  }, []);
 
   // ---- Live preview of the codes that will be created ----
   const prefix = useDebouncedValue(values.codePrefix.trim().toUpperCase(), 300);
@@ -73,5 +86,6 @@ export function useBulkAssetDialog(onCreated: (result: BulkCreateAssetsResult) =
     // only show the preview for the prefix it was loaded for
     nextNumber: isPrefixValid && nextNumber?.prefix === prefix ? nextNumber.value : null,
     previewPrefix: prefix,
+    suggestions,
   };
 }

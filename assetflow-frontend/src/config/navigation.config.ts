@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   Tags,
   Undo2,
+  UserCircle,
   UserCog,
   Users,
   type LucideIcon,
@@ -56,6 +57,11 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Users', href: '/users', icon: UserCog, permission: PERMISSIONS.USERS_MANAGE },
       { label: 'Roles', href: '/roles', icon: ShieldCheck, permission: PERMISSIONS.ROLES_MANAGE },
     ],
+  },
+  {
+    title: 'Account',
+    // Everyone who is signed in can open their own profile
+    items: [{ label: 'My profile', href: '/profile', icon: UserCircle }],
   },
 ];
 

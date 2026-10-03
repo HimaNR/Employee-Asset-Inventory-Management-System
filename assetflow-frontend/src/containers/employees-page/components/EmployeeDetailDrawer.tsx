@@ -11,6 +11,7 @@ import { CategoryIcon } from '@/libs/category-icon';
 import { cn } from '@/libs/cn';
 import { formatDate } from '@/libs/format';
 import { initials } from '@/libs/initials';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { Employee, EmployeeAssignment } from '@/types/employee.types';
 
 interface EmployeeDetailDrawerProps {
@@ -102,7 +103,7 @@ export function EmployeeDetailDrawer({
     >
       {error && !employee && (
         <Banner tone="error">
-          {error.title}: {error.detail}
+          {friendlyMessage(error)}
         </Banner>
       )}
 
@@ -140,7 +141,7 @@ export function EmployeeDetailDrawer({
 
           {actionError && (
             <Banner tone="error" onDismiss={onDismissActionError}>
-              <span className="font-medium">{actionError.title}.</span> {actionError.detail}
+              {friendlyMessage(actionError)}
             </Banner>
           )}
 
@@ -229,6 +230,9 @@ function AssignmentRow({
             ? `since ${formatDate(assignment.assignedAt)}`
             : `${formatDate(assignment.assignedAt)} – ${formatDate(assignment.returnedAt)}`}
         </p>
+        {assignment.notes && (
+          <p className="mt-1 line-clamp-2 text-xs text-ink-muted italic">“{assignment.notes}”</p>
+        )}
       </div>
       {isActive ? (
         onReturn ? (

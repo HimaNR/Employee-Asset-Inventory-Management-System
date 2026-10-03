@@ -32,3 +32,24 @@ export interface AuthTokens {
   expiresIn: number;
   user: UserProfile;
 }
+
+/** GET /auth/me/profile */
+export interface MyProfile {
+  id: string;
+  email: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  lastLoginAt: string | null;
+  createdAt: string;
+  role: { name: string; description: string | null; permissions: string[] };
+  employee: {
+    id: string;
+    employeeCode: string;
+    fullName: string;
+    email: string;
+    department: string | null;
+    designation: string | null;
+    status: 'ACTIVE' | 'INACTIVE';
+    since: string;
+    activeAssetCount: number;
+  } | null;
+}

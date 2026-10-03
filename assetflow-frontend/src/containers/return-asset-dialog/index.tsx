@@ -15,6 +15,7 @@ import {
   statusAfterReturn,
 } from '@/libs/asset-display';
 import { cn } from '@/libs/cn';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { ASSET_CONDITIONS, type AssetCondition } from '@/types/asset.types';
 import type { Assignment } from '@/types/assignment.types';
 import { useReturnAssetDialog } from './hooks/useReturnAssetDialog';
@@ -152,8 +153,7 @@ export default function ReturnAssetDialog({
 
         {dialog.generalError && (
           <Banner tone="error">
-            <span className="font-medium">{dialog.generalError.title}.</span>{' '}
-            {dialog.generalError.detail}
+            {friendlyMessage(dialog.generalError)}
           </Banner>
         )}
       </form>

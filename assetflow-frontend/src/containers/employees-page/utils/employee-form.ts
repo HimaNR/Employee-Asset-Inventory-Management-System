@@ -83,7 +83,7 @@ export function mapServerError(error: ApiError): EmployeeFormErrors {
       const errors: EmployeeFormErrors = {};
       for (const message of error.errors) {
         const field = FIELDS.find((f) => message.startsWith(`${f} `));
-        if (field && !errors[field]) errors[field] = message;
+        if (field && !errors[field]) errors[field] = 'Please check this value.';
       }
       return errors;
     }

@@ -1,14 +1,21 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import Select, { type SelectOption } from '@/components/Select';
+import SuggestionList from '@/components/SuggestionList';
 import Textarea from '@/components/Textarea';
 import type { ApiError } from '@/libs/api/api-error';
 import { ASSET_CONDITION_LABEL } from '@/libs/asset-display';
-import { ASSET_CONDITIONS, type Asset, type AssetCondition } from '@/types/asset.types';
+import { friendlyMessage } from '@/libs/api/friendly-error';
+import {
+  ASSET_CONDITIONS,
+  type Asset,
+  type AssetCondition,
+  type AssetSuggestions,
+} from '@/types/asset.types';
 import {
   mapServerError,
   toFormValues,
@@ -23,6 +30,8 @@ interface AssetFormModalProps {
   /** null = register a new asset, otherwise edit this one */
   asset: Asset | null;
   categoryOptions: SelectOption[];
+  /** Previously used names/brands/models offered while typing */
+  suggestions: AssetSuggestions;
   isSubmitting: boolean;
   serverError: ApiError | null;
   onSubmit: (values: AssetFormValues) => void;
@@ -39,12 +48,14 @@ export function AssetFormModal({
   open,
   asset,
   categoryOptions,
+  suggestions,
   isSubmitting,
   serverError,
   onSubmit,
   onClose,
 }: AssetFormModalProps) {
   const isEdit = asset !== null;
+  const listId = useId();
   const [values, setValues] = useState<AssetFormValues>(() => toFormValues(asset));
   const [clientErrors, setClientErrors] = useState<AssetFormErrors>({});
   const [dismissedError, setDismissedError] = useState<ApiError | null>(null);
@@ -114,6 +125,8 @@ export function AssetFormModal({
             required
             autoFocus={isEdit}
             value={values.name}
+            list={`${listId}-name`}
+            autoComplete="off"
             onChange={(event) => update('name', event.target.value)}
             error={errors.name}
             placeholder="e.g. Dell Latitude 5450"
@@ -144,6 +157,8 @@ export function AssetFormModal({
           <Input
             label="Brand"
             value={values.brand}
+            list={`${listId}-brand`}
+            autoComplete="off"
             onChange={(event) => update('brand', event.target.value)}
             error={errors.brand}
             placeholder="Dell"
@@ -151,6 +166,8 @@ export function AssetFormModal({
           <Input
             label="Model"
             value={values.model}
+            list={`${listId}-model`}
+            autoComplete="off"
             onChange={(event) => update('model', event.target.value)}
             error={errors.model}
             placeholder="Latitude 5450"
@@ -209,10 +226,12 @@ export function AssetFormModal({
 
         {generalError && (
           <div role="alert" className="rounded-2xl bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
-            <p className="font-medium">{generalError.title}</p>
-            <p className="mt-0.5">{generalError.detail}</p>
+            <p>{friendlyMessage(generalError)}</p>
           </div>
         )}
+        <SuggestionList id={`${listId}-name`} values={suggestions.names} />
+        <SuggestionList id={`${listId}-brand`} values={suggestions.brands} />
+        <SuggestionList id={`${listId}-model`} values={suggestions.models} />
       </form>
     </Modal>
   );

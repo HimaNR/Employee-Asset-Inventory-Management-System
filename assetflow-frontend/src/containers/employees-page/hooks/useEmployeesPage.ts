@@ -61,6 +61,7 @@ export function useEmployeesPage() {
 
   // ---------- departments (filter options + form suggestions) ----------
   const [departments, setDepartments] = useState<string[]>([]);
+  const [designations, setDesignations] = useState<string[]>([]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -69,6 +70,12 @@ export function useEmployeesPage() {
       .then(setDepartments)
       .catch(() => {
         // Not critical: the filter just stays empty
+      });
+    employeesService
+      .designations(controller.signal)
+      .then(setDesignations)
+      .catch(() => {
+        // Not critical: no typing suggestions
       });
     return () => controller.abort();
   }, [reloadKey]); // a new department appears after saving
@@ -230,6 +237,7 @@ export function useEmployeesPage() {
     // filters
     filters,
     departments,
+    designations,
     canClearFilters: hasCustomFilters(filters),
     sort,
     changeFilters,

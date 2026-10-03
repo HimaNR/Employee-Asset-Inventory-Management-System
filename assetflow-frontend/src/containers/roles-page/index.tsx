@@ -8,6 +8,7 @@ import Card from '@/components/Card';
 import { ApiError, isAbortError } from '@/libs/api/api-error';
 import { cn } from '@/libs/cn';
 import { roleDisplay } from '@/libs/role-display';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { rolesService } from '@/services/roles/roles.service';
 import type { Role } from '@/types/role.types';
 
@@ -40,7 +41,7 @@ export default function RolesPage() {
   if (error) {
     return (
       <Banner tone="error">
-        {error.title}: {error.detail}
+        {friendlyMessage(error)}
       </Banner>
     );
   }

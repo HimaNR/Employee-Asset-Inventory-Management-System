@@ -126,7 +126,7 @@ function DateFilter({
   return (
     <label
       className={cn(
-        'flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md',
+        'flex h-10 w-full items-center gap-2 rounded-full border px-4 text-sm font-medium shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:w-auto',
         value ? 'border-contrast bg-contrast text-contrast-fg' : 'border-line bg-surface text-ink',
       )}
     >
@@ -137,7 +137,7 @@ function DateFilter({
         min={min || undefined}
         max={max || undefined}
         onChange={(event) => onChange(event.target.value)}
-        className="bg-transparent text-sm outline-none [color-scheme:inherit]"
+        className="min-w-0 flex-1 bg-transparent text-sm outline-none [color-scheme:inherit]"
       />
     </label>
   );

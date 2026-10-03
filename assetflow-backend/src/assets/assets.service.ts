@@ -117,6 +117,31 @@ export class AssetsService {
     return toAssetResponse(asset);
   }
 
+  /** Previously used names, brands and models (form suggestions as you type) */
+  async suggestions(): Promise<{ names: string[]; brands: string[]; models: string[] }> {
+    const [nameRows, brandRows, modelRows] = await Promise.all([
+      this.prisma.asset.findMany({ distinct: ['name'], select: { name: true }, orderBy: { name: 'asc' }, take: 300 }),
+      this.prisma.asset.findMany({
+        where: { brand: { not: null } },
+        distinct: ['brand'],
+        select: { brand: true },
+        orderBy: { brand: 'asc' },
+        take: 300,
+      }),
+      this.prisma.asset.findMany({
+        where: { model: { not: null } },
+        distinct: ['model'],
+        select: { model: true },
+        orderBy: { model: 'asc' },
+        take: 300,
+      }),
+    ]);
+    const names = nameRows.map((row) => row.name);
+    const brands = brandRows.map((row) => row.brand).filter((v): v is string => v !== null);
+    const models = modelRows.map((row) => row.model).filter((v): v is string => v !== null);
+    return { names, brands, models };
+  }
+
   // ---------------- Bulk registration ----------------
 
   /** Next free number for a prefix: KEY-0007 exists -> next is 8 */
