@@ -73,6 +73,21 @@ body {
     color 0.3s ease;
 }
 
+/*
+ * Responsive safety net:
+ * grid items default to "min-width: auto", so one long text (e.g. a truncated name)
+ * could stretch a column wider than the phone screen. Let them shrink instead.
+ */
+.grid > * {
+  min-width: 0;
+}
+
+/* Never allow sideways scrolling of the whole page ("clip" keeps sticky headers working) */
+html,
+body {
+  overflow-x: clip;
+}
+
 /* Visible keyboard focus everywhere (accessibility) */
 :focus-visible {
   outline: 2px solid var(--focus);
