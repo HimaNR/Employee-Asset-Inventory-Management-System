@@ -12,6 +12,8 @@ interface ReturnsTableProps {
   isLoading: boolean;
   sort: TableSort;
   onSortChange: (sort: TableSort) => void;
+  onView: (assignment: Assignment) => void;
+  activeId: string | null;
 }
 
 const CONDITION_TONE: Record<AssetCondition, BadgeTone> = {
@@ -89,7 +91,14 @@ const COLUMNS: TableColumn<Assignment>[] = [
   },
 ];
 
-export function ReturnsTable({ returns, isLoading, sort, onSortChange }: ReturnsTableProps) {
+export function ReturnsTable({
+  returns,
+  isLoading,
+  sort,
+  onSortChange,
+  onView,
+  activeId,
+}: ReturnsTableProps) {
   return (
     <Table
       caption="Returned assets"
@@ -99,6 +108,8 @@ export function ReturnsTable({ returns, isLoading, sort, onSortChange }: Returns
       isLoading={isLoading}
       sort={sort}
       onSortChange={onSortChange}
+      onRowClick={onView}
+      activeRowKey={activeId}
       emptyMessage="No returns recorded yet."
     />
   );

@@ -54,7 +54,10 @@ export default function Drawer({ open, onClose, title, children, footer }: Drawe
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
+        {/* Scrollable without a visible scroll bar */}
+        <div className="flex-1 overflow-y-auto px-5 py-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {children}
+        </div>
 
         {footer && (
           <div className="flex flex-wrap justify-end gap-2 border-t border-line px-6 py-4">

@@ -1,7 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { EmployeeAssignmentsQueryDto } from '../employees/dto/employee-assignments-query.dto';
 import { EmployeesService } from '../employees/employees.service';
@@ -112,6 +112,89 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: authUserSelect });
     if (!user || user.status !== 'ACTIVE') throw unauthorized('Your account is not active.');
     return toProfile(user);
+  }
+
+  /** Full profile for the "My profile" page (account + linked employee details) */
+  async profile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+        lastLoginAt: true,
+        createdAt: true,
+        role: { select: { name: true, description: true, permissions: true } },
+        employee: {
+          select: {
+            id: true,
+            employeeCode: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            department: true,
+            designation: true,
+            status: true,
+            createdAt: true,
+            _count: { select: { assignments: { where: { status: 'ACTIVE' } } } },
+          },
+        },
+      },
+    });
+    if (!user || user.status !== 'ACTIVE') throw unauthorized('Your account is not active.');
+
+    const { employee, ...account } = user;
+    return {
+      ...account,
+      employee: employee
+        ? {
+            id: employee.id,
+            employeeCode: employee.employeeCode,
+            fullName: `${employee.firstName} ${employee.lastName}`,
+            email: employee.email,
+            department: employee.department,
+            designation: employee.designation,
+            status: employee.status,
+            since: employee.createdAt,
+            activeAssetCount: employee._count.assignments,
+          }
+        : null,
+    };
+  }
+
+  /**
+   * The signed-in user changes their own password.
+   * Returns NEW tokens: other devices are signed out, this one stays signed in.
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<AuthTokens> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: authUserSelect });
+    if (!user || user.status !== 'ACTIVE') throw unauthorized('Your account is not active.');
+
+    if (!(await compare(currentPassword, user.passwordHash))) {
+      throw new BadRequestException({
+        type: 'wrong-current-password',
+        title: 'Current password is not correct',
+        detail: 'Your current password is not correct.',
+      });
+    }
+    if (currentPassword === newPassword) {
+      throw new BadRequestException({
+        type: 'same-password',
+        title: 'Choose a different password',
+        detail: 'The new password must be different from the current one.',
+      });
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: await hash(newPassword, 10) },
+    });
+    // New refresh token replaces the old hash -> every other session ends
+    return this.issueTokens(user, { isLogin: false });
   }
 
   /** Brief: "Employee ... may view assets currently assigned to them" */

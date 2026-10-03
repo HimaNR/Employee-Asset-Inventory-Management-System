@@ -9,6 +9,7 @@ import Modal from '@/components/Modal';
 import Textarea from '@/components/Textarea';
 import type { ApiError } from '@/libs/api/api-error';
 import { ASSET_STATUS_DISPLAY, statusActionLabel } from '@/libs/asset-display';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { Asset, AssetStatus } from '@/types/asset.types';
 
 interface StatusChangeDialogProps {
@@ -79,7 +80,7 @@ export function StatusChangeDialog({
         />
         {error && (
           <Banner tone="error">
-            <span className="font-medium">{error.title}.</span> {error.detail}
+            {friendlyMessage(error)}
           </Banner>
         )}
       </div>

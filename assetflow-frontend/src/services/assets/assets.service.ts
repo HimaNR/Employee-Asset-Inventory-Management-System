@@ -6,6 +6,7 @@ import {
   type AssetHistoryEntry,
   type AssetQuery,
   type AssetStatus,
+  type AssetSuggestions,
   type BulkCreateAssetsInput,
   type BulkCreateAssetsResult,
   type NextCode,
@@ -25,6 +26,10 @@ export const assetsService = {
   /** Register many identical assets at once (e.g. 10 keyboards) */
   bulkCreate: (input: BulkCreateAssetsInput) =>
     apiClient.post<BulkCreateAssetsResult>('/assets/bulk', input),
+
+  /** Previously used names, brands and models (typing suggestions) */
+  suggestions: (signal?: AbortSignal) =>
+    apiClient.get<AssetSuggestions>('/assets/suggestions', { signal }),
 
   /** Next free code for a prefix, for the bulk preview */
   nextCode: (prefix: string, signal?: AbortSignal) =>

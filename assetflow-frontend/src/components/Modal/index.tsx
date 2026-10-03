@@ -54,7 +54,9 @@ export default function Modal({
         if (event.target === dialogRef.current) onClose(); // click on the backdrop
       }}
       className={cn(
-        'm-auto w-[calc(100%-2rem)] rounded-3xl border border-line bg-surface p-0 text-ink shadow-2xl shadow-black/20',
+        'm-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-1.5rem)] overflow-y-auto rounded-3xl border border-line bg-surface p-0 text-ink shadow-2xl shadow-black/20',
+        // Still scrollable, but no visible scroll bar (cleaner look)
+        '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         'backdrop:bg-black/40 backdrop:backdrop-blur-sm',
         // Pop-in animation when the dialog opens
         'transition-[opacity,transform] duration-200 ease-out starting:open:translate-y-2 starting:open:scale-95 starting:open:opacity-0',

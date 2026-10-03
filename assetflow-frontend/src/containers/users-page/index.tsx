@@ -6,6 +6,7 @@ import Button from '@/components/Button';
 import Pagination from '@/components/Pagination';
 import Select from '@/components/Select';
 import { useSession } from '@/libs/auth/use-session';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { UserStatus } from '@/types/user.types';
 import { PasswordModal } from './components/PasswordModal';
 import { UserFormModal } from './components/UserFormModal';
@@ -83,7 +84,7 @@ export default function UsersPage() {
 
       {page.listError ? (
         <Banner tone="error">
-          {page.listError.title}: {page.listError.detail}
+          {friendlyMessage(page.listError)}
         </Banner>
       ) : (
         <>

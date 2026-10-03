@@ -8,6 +8,7 @@ import { ASSET_STATUS_DISPLAY } from '@/libs/asset-display';
 import { useSession } from '@/libs/auth/use-session';
 import { CategoryIcon } from '@/libs/category-icon';
 import { formatDate, formatDuration } from '@/libs/format';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { authService } from '@/services/auth/auth.service';
 import type { EmployeeAssignment } from '@/types/employee.types';
 
@@ -43,7 +44,7 @@ export default function MyAssetsPage() {
 
       {error && (
         <Banner tone="error">
-          {error.title}: {error.detail}
+          {friendlyMessage(error)}
         </Banner>
       )}
 

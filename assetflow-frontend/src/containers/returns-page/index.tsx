@@ -4,8 +4,10 @@ import { Search, Undo2 } from 'lucide-react';
 import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import Pagination from '@/components/Pagination';
+import AssignmentDetailDrawer from '@/containers/assignment-detail-drawer';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
 import { useCan } from '@/libs/auth/use-session';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { PERMISSIONS } from '@/types/auth.types';
 import { ReturnsTable } from './components/ReturnsTable';
 import { useReturnsPage } from './hooks/useReturnsPage';
@@ -66,8 +68,7 @@ export default function ReturnsPage() {
 
       {page.listError ? (
         <div className="rounded-3xl bg-red-500/10 p-6 text-sm text-red-700 dark:text-red-300">
-          <p className="font-medium">{page.listError.title}</p>
-          <p className="mt-1">{page.listError.detail}</p>
+          <p>{friendlyMessage(page.listError)}</p>
           <Button variant="secondary" size="sm" className="mt-4" onClick={page.reload}>
             Try again
           </Button>
@@ -79,6 +80,8 @@ export default function ReturnsPage() {
             isLoading={page.isLoading}
             sort={page.sort}
             onSortChange={page.changeSort}
+            onView={page.openDetail}
+            activeId={page.selected?.id ?? null}
           />
           <Pagination
             meta={page.meta}
@@ -88,6 +91,12 @@ export default function ReturnsPage() {
           />
         </>
       )}
+
+      <AssignmentDetailDrawer
+        open={page.selected !== null}
+        assignment={page.selected}
+        onClose={page.closeDetail}
+      />
 
       <ReturnAssetDialog
         key={page.returnDialog.key}

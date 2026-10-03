@@ -55,6 +55,9 @@ export function useReturnsPage() {
 
   const reload = useCallback(() => setReloadKey((key) => key + 1), []);
 
+  // ---------- detail panel ----------
+  const [selected, setSelected] = useState<Assignment | null>(null);
+
   // ---------- "Record a return" dialog ----------
   const [notice, setNotice] = useState<string | null>(null);
   const [returnDialog, setReturnDialog] = useState({ open: false, key: 0 });
@@ -93,6 +96,9 @@ export function useReturnsPage() {
     },
     notice,
     dismissNotice: () => setNotice(null),
+    selected,
+    openDetail: setSelected,
+    closeDetail: () => setSelected(null),
     returnDialog,
     openReturn,
     closeReturn,

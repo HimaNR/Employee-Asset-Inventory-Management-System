@@ -15,6 +15,9 @@ interface AssignmentsTableProps {
   onSortChange: (sort: TableSort) => void;
   /** Leave out (no permission) and the Actions column disappears */
   onReturn?: (assignment: Assignment) => void;
+  /** Row click opens the detail panel */
+  onView: (assignment: Assignment) => void;
+  activeAssignmentId: string | null;
 }
 
 const BASE_COLUMNS: TableColumn<Assignment>[] = [
@@ -100,6 +103,8 @@ export function AssignmentsTable({
   sort,
   onSortChange,
   onReturn,
+  onView,
+  activeAssignmentId,
 }: AssignmentsTableProps) {
   if (!onReturn) {
     return (
@@ -111,6 +116,8 @@ export function AssignmentsTable({
         isLoading={isLoading}
         sort={sort}
         onSortChange={onSortChange}
+        onRowClick={onView}
+        activeRowKey={activeAssignmentId}
         emptyMessage="No assignments match your filters."
       />
     );
@@ -146,6 +153,8 @@ export function AssignmentsTable({
       isLoading={isLoading}
       sort={sort}
       onSortChange={onSortChange}
+      onRowClick={onView}
+      activeRowKey={activeAssignmentId}
       emptyMessage="No assignments match your filters."
     />
   );

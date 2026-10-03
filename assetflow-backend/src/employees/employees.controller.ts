@@ -38,6 +38,13 @@ export class EmployeesController {
     return this.employeesService.findDepartments();
   }
 
+  /** Distinct designations (declared BEFORE ':id') */
+  @Get('designations')
+  @Permissions(PERMISSIONS.EMPLOYEES_READ)
+  findDesignations() {
+    return this.employeesService.findDesignations();
+  }
+
   @Get(':id')
   @Permissions(PERMISSIONS.EMPLOYEES_READ)
   findOne(@Param('id', ParseUUIDPipe) id: string) {

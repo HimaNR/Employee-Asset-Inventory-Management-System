@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { ApiError } from '@/libs/api/api-error';
 import { cn } from '@/libs/cn';
 import type { DashboardOverview } from '@/types/dashboard.types';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 
 interface OverviewHeroProps {
   /** Shown in the greeting, e.g. "Nimal" or "Manager" */
@@ -31,7 +32,7 @@ export function OverviewHero({ greetingName, overview, error, isLoading }: Overv
         <div className="mt-7">
           {error ? (
             <p className="text-sm text-red-600 dark:text-red-400">
-              Could not load inventory figures: {error.title}
+              {friendlyMessage(error)}
             </p>
           ) : isLoading && !overview ? (
             <div className="h-[4.5rem] animate-pulse rounded-full bg-surface-2" />

@@ -19,6 +19,9 @@ export const employeesService = {
   departments: (signal?: AbortSignal) =>
     apiClient.get<string[]>('/employees/departments', { signal }),
 
+  designations: (signal?: AbortSignal) =>
+    apiClient.get<string[]>('/employees/designations', { signal }),
+
   assignments: (
     id: string,
     query: { status?: AssignmentStatus; page?: number; limit?: number },

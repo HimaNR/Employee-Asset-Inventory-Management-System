@@ -16,6 +16,7 @@ import {
 import { CategoryIcon } from '@/libs/category-icon';
 import { cn } from '@/libs/cn';
 import { daysUntil, formatAmount, formatDate } from '@/libs/format';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { Asset, AssetHistoryEntry, AssetStatus } from '@/types/asset.types';
 import { AssetHistoryTimeline } from './AssetHistoryTimeline';
 
@@ -128,7 +129,7 @@ export function AssetDetailDrawer({
     >
       {error && !asset && (
         <Banner tone="error">
-          {error.title}: {error.detail}
+          {friendlyMessage(error)}
         </Banner>
       )}
 
@@ -140,7 +141,7 @@ export function AssetDetailDrawer({
 
           {actionError && (
             <Banner tone="error" onDismiss={onDismissActionError}>
-              <span className="font-medium">{actionError.title}.</span> {actionError.detail}
+              {friendlyMessage(actionError)}
             </Banner>
           )}
 

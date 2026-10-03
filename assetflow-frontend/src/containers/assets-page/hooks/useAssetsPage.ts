@@ -12,6 +12,7 @@ import type {
   Asset,
   AssetQuery,
   AssetStatus,
+  AssetSuggestions,
   BulkCreateAssetsResult,
 } from '@/types/asset.types';
 import type { Assignment } from '@/types/assignment.types';
@@ -84,6 +85,20 @@ export function useAssetsPage() {
       });
     return () => controller.abort();
   }, [isActiveFilter, reloadKey]);
+
+  // ---------- typing suggestions (refreshed after every save) ----------
+  const [suggestions, setSuggestions] = useState<AssetSuggestions>({ names: [], brands: [], models: [] });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    assetsService
+      .suggestions(controller.signal)
+      .then(setSuggestions)
+      .catch(() => {
+        // Not critical: fields just have no suggestions
+      });
+    return () => controller.abort();
+  }, [reloadKey]);
 
   // ---------- dropdown options: categories + employees ----------
   const [categories, setCategories] = useState<Category[]>([]);
@@ -360,6 +375,7 @@ export function useAssetsPage() {
     canClearFilters: hasCustomFilters(filters),
     categoryOptions,
     formCategoryOptions,
+    suggestions,
     employeeOptions,
     statusCounts,
     sort,

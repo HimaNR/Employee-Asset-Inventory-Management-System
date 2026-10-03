@@ -8,6 +8,7 @@ import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
 import { useCan } from '@/libs/auth/use-session';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { PERMISSIONS } from '@/types/auth.types';
 import { EmployeeDetailDrawer } from './components/EmployeeDetailDrawer';
 import { EmployeeFilters } from './components/EmployeeFilters';
@@ -68,8 +69,7 @@ export default function EmployeesPage() {
 
       {page.listError ? (
         <div className="rounded-3xl bg-red-500/10 p-6 text-sm text-red-700 dark:text-red-300">
-          <p className="font-medium">{page.listError.title}</p>
-          <p className="mt-1">{page.listError.detail}</p>
+          <p>{friendlyMessage(page.listError)}</p>
           <Button variant="secondary" size="sm" className="mt-4" onClick={page.reload}>
             Try again
           </Button>
@@ -119,6 +119,7 @@ export default function EmployeesPage() {
         open={page.form.open}
         employee={page.form.employee}
         departments={page.departments}
+        designations={page.designations}
         isSubmitting={page.isSaving}
         serverError={page.saveError}
         onSubmit={page.saveEmployee}

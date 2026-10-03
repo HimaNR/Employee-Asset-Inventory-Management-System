@@ -122,3 +122,10 @@ export interface NextCode {
   nextNumber: number;
   nextCode: string;
 }
+
+/** Previously used values, offered as suggestions while typing */
+export interface AssetSuggestions {
+  names: string[];
+  brands: string[];
+  models: string[];
+}

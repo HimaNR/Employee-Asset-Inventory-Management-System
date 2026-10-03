@@ -5,8 +5,10 @@ import Banner from '@/components/Banner';
 import Button from '@/components/Button';
 import Pagination from '@/components/Pagination';
 import AssignAssetDialog from '@/containers/assign-asset-dialog';
+import AssignmentDetailDrawer from '@/containers/assignment-detail-drawer';
 import ReturnAssetDialog from '@/containers/return-asset-dialog';
 import { useCan } from '@/libs/auth/use-session';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { PERMISSIONS } from '@/types/auth.types';
 import { AssignmentFilters } from './components/AssignmentFilters';
 import { AssignmentsTable } from './components/AssignmentsTable';
@@ -63,8 +65,7 @@ export default function AssignmentsPage() {
 
       {page.listError ? (
         <div className="rounded-3xl bg-red-500/10 p-6 text-sm text-red-700 dark:text-red-300">
-          <p className="font-medium">{page.listError.title}</p>
-          <p className="mt-1">{page.listError.detail}</p>
+          <p>{friendlyMessage(page.listError)}</p>
           <Button variant="secondary" size="sm" className="mt-4" onClick={page.reload}>
             Try again
           </Button>
@@ -77,6 +78,8 @@ export default function AssignmentsPage() {
             sort={page.sort}
             onSortChange={page.changeSort}
             onReturn={can(PERMISSIONS.RETURNS_WRITE) ? page.openReturn : undefined}
+            onView={page.openDetail}
+            activeAssignmentId={page.selectedAssignment?.id ?? null}
           />
           <Pagination
             meta={page.meta}
@@ -92,6 +95,13 @@ export default function AssignmentsPage() {
         open={page.assignDialog.open}
         onAssigned={page.handleAssigned}
         onClose={page.closeAssign}
+      />
+
+      <AssignmentDetailDrawer
+        open={page.selectedAssignment !== null}
+        assignment={page.selectedAssignment}
+        onReturn={can(PERMISSIONS.RETURNS_WRITE) ? page.openReturn : undefined}
+        onClose={page.closeDetail}
       />
 
       <ReturnAssetDialog

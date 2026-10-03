@@ -4,6 +4,7 @@ import { Public } from '../common/decorators/public.decorator';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import type { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
@@ -38,6 +39,19 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: AuthenticatedUser) {
     return this.authService.me(user.id);
+  }
+
+  /** Account + linked employee details for the "My profile" page */
+  @Get('me/profile')
+  profile(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.profile(user.id);
+  }
+
+  /** Change your own password (current password required); returns fresh tokens */
+  @Post('me/password')
+  @HttpCode(HttpStatus.OK)
+  changePassword(@CurrentUser() user: AuthenticatedUser, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(user.id, dto.currentPassword, dto.newPassword);
   }
 
   /** Assets currently assigned to the signed-in employee */

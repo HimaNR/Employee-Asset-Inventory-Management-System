@@ -3,6 +3,7 @@ import Card from '@/components/Card';
 import type { ApiError } from '@/libs/api/api-error';
 import { cn } from '@/libs/cn';
 import type { HealthResponse } from '@/types/health.types';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 
 interface ApiStatusCardProps {
   health: HealthResponse | null;
@@ -76,8 +77,7 @@ export function ApiStatusCard({ health, error, isLoading, onRefresh }: ApiStatus
 
       {error && (
         <div className="mt-6 rounded-2xl bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
-          <p className="font-medium">{error.title}</p>
-          <p className="mt-0.5 opacity-90">{error.detail}</p>
+          <p>{friendlyMessage(error)}</p>
           {error.requestId && (
             <p className="mt-2 font-mono text-xs opacity-75">Request ID: {error.requestId}</p>
           )}

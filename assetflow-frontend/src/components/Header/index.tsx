@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { LogOut, Menu } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { initials } from '@/libs/initials';
@@ -34,17 +35,25 @@ export default function Header({ title, user, onMenuClick, onLogout }: HeaderPro
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
         <ThemeToggle />
-        <div className="flex items-center gap-2.5 rounded-full border border-line bg-surface py-1 pr-1 pl-1 transition hover:shadow-md">
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-contrast text-xs font-medium text-contrast-fg"
+        <div className="flex items-center gap-1 rounded-full border border-line bg-surface py-1 pr-1 pl-1 transition hover:shadow-md">
+          {/* Avatar + name open "My profile" */}
+          <Link
+            href="/profile"
+            title="My profile"
+            className="flex min-w-0 items-center gap-2.5 rounded-full pr-2 transition hover:bg-surface-2"
           >
-            {initials(displayName)}
-          </span>
-          <span className="hidden min-w-0 leading-tight sm:block">
-            <span className="block max-w-[11rem] truncate text-sm">{displayName}</span>
-            <span className="block text-[11px] text-ink-muted">{ROLE_LABEL[user.role] ?? user.role}</span>
-          </span>
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-contrast text-xs font-medium text-contrast-fg"
+            >
+              {initials(displayName)}
+            </span>
+            <span className="hidden min-w-0 leading-tight sm:block">
+              <span className="block max-w-[11rem] truncate text-sm">{displayName}</span>
+              <span className="block text-[11px] text-ink-muted">{ROLE_LABEL[user.role] ?? user.role}</span>
+            </span>
+            <span className="sr-only">Open my profile</span>
+          </Link>
           <button
             type="button"
             onClick={onLogout}

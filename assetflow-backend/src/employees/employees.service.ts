@@ -72,6 +72,17 @@ export class EmployeesService {
     return rows.map((row) => row.department).filter((d): d is string => d !== null);
   }
 
+  /** Distinct designations, A to Z (form suggestions) */
+  async findDesignations(): Promise<string[]> {
+    const rows = await this.prisma.employee.findMany({
+      where: { designation: { not: null } },
+      distinct: ['designation'],
+      select: { designation: true },
+      orderBy: { designation: 'asc' },
+    });
+    return rows.map((row) => row.designation).filter((d): d is string => d !== null);
+  }
+
   /** Assets this employee holds now (ACTIVE) and held before (RETURNED) */
   async findAssignments(
     id: string,

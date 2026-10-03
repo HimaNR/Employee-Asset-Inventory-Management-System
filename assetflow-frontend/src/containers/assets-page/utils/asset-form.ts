@@ -110,11 +110,11 @@ export function mapServerError(error: ApiError): AssetFormErrors {
     case 'invalid-warranty-date':
       return { warrantyExpiryDate: error.detail };
     case 'validation-error': {
-      // Messages start with the field name: "purchasePrice must not be less than 0"
+      // Server messages start with a technical field name, so show a plain hint under the field instead
       const errors: AssetFormErrors = {};
       for (const message of error.errors) {
         const field = FIELDS.find((f) => message.startsWith(`${f} `));
-        if (field && !errors[field]) errors[field] = message;
+        if (field && !errors[field]) errors[field] = 'Please check this value.';
       }
       return errors;
     }

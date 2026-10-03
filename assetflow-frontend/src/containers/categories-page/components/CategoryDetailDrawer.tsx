@@ -10,6 +10,7 @@ import { ASSET_CONDITION_LABEL, ASSET_STATUS_DISPLAY } from '@/libs/asset-displa
 import { CategoryIcon } from '@/libs/category-icon';
 import { cn } from '@/libs/cn';
 import { formatAmount } from '@/libs/format';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import { ASSET_STATUSES, type Asset, type AssetStatus } from '@/types/asset.types';
 import type { Category } from '@/types/category.types';
 
@@ -101,7 +102,7 @@ export function CategoryDetailDrawer({
 
             {error && (
               <Banner tone="error">
-                {error.title}: {error.detail}
+                {friendlyMessage(error)}
               </Banner>
             )}
 

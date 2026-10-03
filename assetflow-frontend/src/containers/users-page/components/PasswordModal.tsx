@@ -6,6 +6,7 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import type { ApiError } from '@/libs/api/api-error';
+import { friendlyMessage } from '@/libs/api/friendly-error';
 import type { User } from '@/types/user.types';
 import { validatePassword } from '../utils/user-form';
 
@@ -77,7 +78,7 @@ export function PasswordModal({
         />
         {serverError && (
           <Banner tone="error">
-            <span className="font-medium">{serverError.title}.</span> {serverError.detail}
+            {friendlyMessage(serverError)}
           </Banner>
         )}
       </form>
