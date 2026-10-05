@@ -102,3 +102,23 @@ export interface ChangeStatusInput {
   status: AssetStatus;
   notes?: string;
 }
+
+/** POST /assets/bulk: shared fields + generated codes PREFIX-0001 ... */
+export interface BulkCreateAssetsInput extends Omit<CreateAssetInput, 'assetCode' | 'serialNumber'> {
+  codePrefix: string;
+  quantity: number;
+  serialNumbers?: string[];
+}
+
+export interface BulkCreateAssetsResult {
+  count: number;
+  firstCode: string;
+  lastCode: string;
+  assets: Asset[];
+}
+
+export interface NextCode {
+  prefix: string;
+  nextNumber: number;
+  nextCode: string;
+}

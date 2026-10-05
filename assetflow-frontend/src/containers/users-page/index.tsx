@@ -25,7 +25,7 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-end gap-4">
-          <p className="text-6xl font-light tracking-tight tabular-nums">{page.meta.total}</p>
+          <p className="text-5xl font-light tracking-tight tabular-nums sm:text-6xl">{page.meta.total}</p>
           <p className="pb-2 text-sm leading-tight text-ink-muted">
             system
             <br />
@@ -47,7 +47,7 @@ export default function UsersPage() {
           options={page.roleOptions}
           value={page.roleId}
           onChange={(event) => page.changeRole(event.target.value)}
-          className="w-48"
+          className="w-full sm:w-48"
         />
         <Select
           variant="filter"
@@ -57,7 +57,7 @@ export default function UsersPage() {
           options={STATUS_OPTIONS}
           value={page.status}
           onChange={(event) => page.changeStatus(event.target.value as UserStatus | '')}
-          className="w-44"
+          className="w-full sm:w-44"
         />
       </div>
       <label className="relative block w-full">

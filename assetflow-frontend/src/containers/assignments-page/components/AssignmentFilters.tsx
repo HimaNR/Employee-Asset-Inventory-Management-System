@@ -79,7 +79,7 @@ export function AssignmentFilters({
           options={employeeOptions}
           value={filters.employeeId}
           onChange={(event) => onChange({ employeeId: event.target.value })}
-          className="w-60"
+          className="w-full sm:w-60"
         />
         <DateFilter label="From" value={filters.from} max={filters.to} onChange={(from) => onChange({ from })} />
         <DateFilter label="To" value={filters.to} min={filters.from} onChange={(to) => onChange({ to })} />

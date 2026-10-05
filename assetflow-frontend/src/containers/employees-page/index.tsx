@@ -27,7 +27,7 @@ export default function EmployeesPage() {
       {/* Headline + main action */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-end gap-4">
-          <p className="text-6xl font-light tracking-tight tabular-nums">{page.meta.total}</p>
+          <p className="text-5xl font-light tracking-tight tabular-nums sm:text-6xl">{page.meta.total}</p>
           <p className="pb-2 text-sm leading-tight text-ink-muted">
             {page.canClearFilters ? (
               <>

@@ -41,7 +41,7 @@ export function OverviewHero({ greetingName, overview, error, isLoading }: Overv
         </div>
       </div>
 
-      <div className="flex gap-8 sm:gap-10">
+      <div className="flex justify-between gap-6 sm:justify-start sm:gap-10">
         <BigNumber icon={<Laptop className="h-4 w-4" />} value={overview?.totalAssets} label="Assets" />
         <BigNumber icon={<UserCheck className="h-4 w-4" />} value={overview?.assigned} label="Assigned" />
         <BigNumber icon={<Layers className="h-4 w-4" />} value={overview?.categories} label="Categories" />
@@ -74,12 +74,12 @@ function UtilisationBar({ overview }: { overview: DashboardOverview }) {
   }
 
   return (
-    <div className="flex w-full gap-2" role="list" aria-label="Asset utilisation">
+    <div className="grid w-full grid-cols-2 gap-2 sm:flex" role="list" aria-label="Asset utilisation">
       {segments.map((segment) => (
         <div
           key={segment.label}
           role="listitem"
-          className="group min-w-[5.5rem]"
+          className="group min-w-0 sm:min-w-[5.5rem]"
           style={{ flexGrow: segment.value, flexBasis: 0 }}
         >
           <p className="mb-2 truncate text-sm text-ink-muted">{segment.label}</p>

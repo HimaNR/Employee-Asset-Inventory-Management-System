@@ -35,7 +35,7 @@ export function EmployeeFilters({
           value={filters.status}
           neutralValue={DEFAULT_FILTERS.status}
           onChange={(event) => onChange({ status: event.target.value as Filters['status'] })}
-          className="w-52"
+          className="w-full sm:w-52"
         />
         <Select
           variant="filter"
@@ -45,7 +45,7 @@ export function EmployeeFilters({
           options={departments.map((d) => ({ value: d, label: d }))}
           value={filters.department}
           onChange={(event) => onChange({ department: event.target.value })}
-          className="w-52"
+          className="w-full sm:w-52"
         />
         {canClear && (
           <Button variant="ghost" size="sm" onClick={onClear}>
