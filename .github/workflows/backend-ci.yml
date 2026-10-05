@@ -17,6 +17,9 @@ jobs:
       run:
         working-directory: assetflow-backend
 
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/assetflow_test"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
