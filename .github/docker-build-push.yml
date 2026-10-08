@@ -1,0 +1,47 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./assetflow-backend
+          file: ./assetflow-backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/PalaramBPO/employee-asset-backend:dev
+            ghcr.io/PalaramBPO/employee-asset-backend:${{ github.sha }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./assetflow-frontend
+          file: ./assetflow-frontend/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+          tags: |
+            ghcr.io/PalaramBPO/employee-asset-frontend:dev
+            ghcr.io/PalaramBPO/employee-asset-frontend:${{ github.sha }}
