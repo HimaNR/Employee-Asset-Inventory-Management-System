@@ -31,8 +31,8 @@ jobs:
           file: ./assetflow-backend/Dockerfile
           push: true
           tags: |
-            ghcr.io/palarambpo/employee-asset-backend:dev
-            ghcr.io/palarambpo/employee-asset-backend:${{ github.sha }}
+            ghcr.io/himanr/employee-asset-backend:dev
+            ghcr.io/himanr/employee-asset-backend:${{ github.sha }}
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v6
@@ -43,5 +43,5 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
           tags: |
-            ghcr.io/palarambpo/employee-asset-frontend:dev
-            ghcr.io/palarambpo/employee-asset-frontend:${{ github.sha }}
+            ghcr.io/himanr/employee-asset-frontend:dev
+            ghcr.io/himanr/employee-asset-frontend:${{ github.sha }}
