@@ -55,3 +55,13 @@ jobs:
           tags: |
             ghcr.io/himanr/employee-asset-frontend:${{ steps.tag.outputs.environment }}
             ghcr.io/himanr/employee-asset-frontend:${{ github.sha }}
+
+      - name: Build and push PostgreSQL image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker/postgres
+          file: ./docker/postgres/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/himanr/employee-asset-postgres:${{ steps.tag.outputs.environment }}
+            ghcr.io/himanr/employee-asset-postgres:${{ github.sha }}

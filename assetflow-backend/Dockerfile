@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm install --ignore-scripts --no-audit --no-fund
 COPY . .
 # Generate the Prisma client into src/generated. The dummy URL only lets the config load.
-RUN DATABASE_URL=postgresql://x:x@localhost:5432/x npx prisma generate --config prisma7.config.ts
+RUN DATABASE_URL=postgresql://x:x@localhost:5433/x npx prisma generate --config prisma7.config.ts
 RUN npm run build
 RUN npm prune --omit=dev --ignore-scripts
 
