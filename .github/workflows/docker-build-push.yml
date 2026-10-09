@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - main
 
 permissions:
   contents: read
@@ -24,6 +25,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set Docker tag
+        id: tag
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "environment=latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "environment=dev" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and push backend image
         uses: docker/build-push-action@v6
         with:
@@ -31,7 +41,7 @@ jobs:
           file: ./assetflow-backend/Dockerfile
           push: true
           tags: |
-            ghcr.io/himanr/employee-asset-backend:dev
+            ghcr.io/himanr/employee-asset-backend:${{ steps.tag.outputs.environment }}
             ghcr.io/himanr/employee-asset-backend:${{ github.sha }}
 
       - name: Build and push frontend image
@@ -43,5 +53,5 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
           tags: |
-            ghcr.io/himanr/employee-asset-frontend:dev
+            ghcr.io/himanr/employee-asset-frontend:${{ steps.tag.outputs.environment }}
             ghcr.io/himanr/employee-asset-frontend:${{ github.sha }}

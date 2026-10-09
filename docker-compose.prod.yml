@@ -30,7 +30,7 @@ services:
         condition: service_healthy
 
   backend:
-    image: ghcr.io/himanr/employee-asset-backend:dev
+    image: ghcr.io/himanr/employee-asset-backend:${IMAGE_TAG}
     container_name: assetflow-backend
     restart: unless-stopped
     environment:
@@ -47,11 +47,11 @@ services:
         condition: service_healthy
 
   frontend:
-    image: ghcr.io/himanr/employee-asset-frontend:dev
+    image: ghcr.io/himanr/employee-asset-frontend:${IMAGE_TAG}
     container_name: assetflow-frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "${FRONTEND_PORT:-4040}:4040"
     depends_on:
       - backend
 
