@@ -1,7 +1,7 @@
 services:
   postgres:
     build:
-      context: ./postgres
+      context: ./docker/postgres
       dockerfile: Dockerfile
     container_name: assetflow-postgres
     restart: unless-stopped
@@ -30,7 +30,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ./assetflow-backend
       dockerfile: Dockerfile
     container_name: assetflow-backend
     restart: unless-stopped
@@ -52,7 +52,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./assetflow-frontend
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
