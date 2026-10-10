@@ -1,59 +1,87 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
     container_name: assetflow-postgres
     restart: unless-stopped
+
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5433",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
+
+    expose:
+      - "5433"
 
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: assetflow-pgadmin
     restart: unless-stopped
+
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+
     ports:
       - "${PGADMIN_PORT:-5050}:80"
+
     depends_on:
       postgres:
         condition: service_healthy
 
   backend:
-    image: ghcr.io/himanr/employee-asset-backend:${IMAGE_TAG}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: assetflow-backend
     restart: unless-stopped
+
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5433/${POSTGRES_DB}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN}
+
     ports:
       - "${BACKEND_PORT:-4000}:4000"
+
     depends_on:
       postgres:
         condition: service_healthy
 
   frontend:
-    image: ghcr.io/himanr/employee-asset-frontend:${IMAGE_TAG}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+
     container_name: assetflow-frontend
     restart: unless-stopped
+
     ports:
-      - "${FRONTEND_PORT:-4040}:4040"
+      - "${FRONTEND_PORT:-4040}:3000"
+
     depends_on:
-      - backend
+      backend:
+        condition: service_started
 
 volumes:
   postgres_data:
