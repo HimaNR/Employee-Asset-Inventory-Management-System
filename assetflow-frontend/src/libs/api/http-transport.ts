@@ -1,7 +1,7 @@
-import { apiConfig } from '@/config/api.config';
-import { ApiError } from './api-error';
+import { apiConfig } from "@/config/api.config";
+import { ApiError } from "./api-error";
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 export type QueryValue = string | number | boolean | null | undefined;
 
 export interface HttpRequest {
@@ -26,13 +26,13 @@ export async function httpRequest<T>(request: HttpRequest): Promise<T> {
     response = await fetch(buildUrl(request.path, request.query), {
       method: request.method,
       headers: {
-        Accept: 'application/json',
-        ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+        Accept: "application/json",
+        ...(hasBody ? { "Content-Type": "application/json" } : {}),
         ...request.headers,
       },
       body: hasBody ? JSON.stringify(request.body) : undefined,
       signal,
-      cache: 'no-store',
+      cache: "no-store",
     });
   } catch (error) {
     if (request.signal?.aborted) throw error; // cancelled by the caller
@@ -40,7 +40,7 @@ export async function httpRequest<T>(request: HttpRequest): Promise<T> {
     throw ApiError.network();
   }
 
-  const requestId = response.headers.get('x-request-id') ?? undefined;
+  const requestId = response.headers.get("x-request-id") ?? undefined;
   const data = await parseBody(response);
 
   if (!response.ok) {
@@ -50,19 +50,26 @@ export async function httpRequest<T>(request: HttpRequest): Promise<T> {
 }
 
 function buildUrl(path: string, query?: Record<string, QueryValue>): string {
-  const url = new URL(path, apiConfig.baseUrl);
+  const baseUrl = apiConfig.baseUrl.endsWith("/")
+    ? apiConfig.baseUrl
+    : `${apiConfig.baseUrl}/`;
+
+  const normalizedPath = path.replace(/^\/+/, "");
+  const url = new URL(normalizedPath, baseUrl);
+
   for (const [key, value] of Object.entries(query ?? {})) {
-    if (value === undefined || value === null || value === '') continue;
+    if (value === undefined || value === null || value === "") continue;
     url.searchParams.set(key, String(value));
   }
+
   return url.toString();
 }
 
 async function parseBody(response: Response): Promise<unknown> {
   if (response.status === 204) return undefined;
-  const contentType = response.headers.get('content-type') ?? '';
+  const contentType = response.headers.get("content-type") ?? "";
   // matches application/json AND application/problem+json
-  if (contentType.includes('json')) return response.json();
+  if (contentType.includes("json")) return response.json();
   const text = await response.text();
   return text || undefined;
 }
