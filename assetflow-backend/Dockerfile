@@ -1,16 +1,18 @@
 # ---- base ----
 FROM node:24-alpine AS base
+
 WORKDIR /app
 
 COPY package*.json ./
 
+# Skip postinstall because Prisma schema has not been copied yet
 # npm install instead of npm ci because the Windows-made lockfile
 # lacks Linux-only optional dependencies
-RUN npm install --no-audit --no-fund
+RUN npm install --ignore-scripts --no-audit --no-fund
 
 COPY . .
 
-# Generate Prisma Client
+# Generate Prisma Client after the schema and Prisma config are available
 RUN DATABASE_URL=postgresql://x:x@localhost:5433/x \
     npx prisma generate --config prisma7.config.ts
 
@@ -20,12 +22,13 @@ FROM base AS build
 
 RUN npm run build
 
-# Remove development dependencies from the production build
+# Remove development dependencies from production build
 RUN npm prune --omit=dev --ignore-scripts
 
 
 # ---- production ----
 FROM node:24-alpine AS production
+
 WORKDIR /app
 
 ENV NODE_ENV=production
