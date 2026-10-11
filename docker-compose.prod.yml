@@ -32,6 +32,8 @@ services:
     build:
       context: ./assetflow-backend
       dockerfile: Dockerfile
+      target: production
+
     container_name: assetflow-backend
     restart: unless-stopped
 
