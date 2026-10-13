@@ -34,13 +34,13 @@ jobs:
             git reset --hard origin/dev
 
             echo "Building Docker images..."
-            docker compose build
+            docker compose -f docker-compose.prod.yml build
 
             echo "Starting application..."
-            docker compose up -d
+            docker compose -f docker-compose.prod.yml up -d
 
             echo "Checking containers..."
-            docker compose ps
+            docker compose -f docker-compose.prod.yml ps
 
             echo "================================="
             echo "Deployment completed successfully"
