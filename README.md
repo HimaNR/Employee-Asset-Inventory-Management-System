@@ -25,5 +25,3 @@ docker-compose.yml    Local PostgreSQL + pgAdmin
 3. Backend and frontend setup: see each app's README.
 
 > 🚧 Work in progress
-
-Integrated CI/CD
